@@ -29,9 +29,14 @@
     eza procs bottom ripgrep fd
     netcat socat dig xh
     podman
-    yt-dlp xxd
+    yt-dlp xxd mediainfo
     p7zip unrar
     gptfdisk
+    zstd
+    ffmpeg
+    jdk25
+    gcc
+    openspec
 
     # # Adds the 'hello' command to your environment. It prints a friendly
     # # "Hello, world!" when run.
