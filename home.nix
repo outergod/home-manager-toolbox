@@ -1,7 +1,7 @@
-{ config, pkgs, emacs-overlay, ... }:
+{ config, pkgs, emacs-overlay, nixgl, ... }:
 
 {
-  nixpkgs.overlays = [ emacs-overlay.overlays.default ];
+  nixpkgs.overlays = [ emacs-overlay.overlays.default nixgl.overlay ];
   nixpkgs.config.allowUnfree = true;
 
   # Home Manager needs a bit of information about you and the paths it should
@@ -35,8 +35,13 @@
     zstd
     ffmpeg
     jdk25
-    gcc
-    openspec
+
+    yaml-language-server
+
+    libheif imagemagick
+
+    nixgl
+    uv
 
     # # Adds the 'hello' command to your environment. It prints a friendly
     # # "Hello, world!" when run.
