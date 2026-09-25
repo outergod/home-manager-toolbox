@@ -96,6 +96,20 @@
     # EDITOR = "emacs";
   };
 
+  # The nix store's glibc is older than the container's, so nix-built GPU
+  # programs cannot load the system's Mesa drivers. Anything passed through
+  # config.lib.nixGL.wrap runs under nixGL with nixpkgs' Mesa instead.
+  targets.genericLinux.nixGL = {
+    packages = nixgl.packages;
+    defaultWrapper = "mesa";
+    vulkan.enable = true;
+  };
+
+  programs.zed-editor = {
+    enable = true;
+    package = config.lib.nixGL.wrap pkgs.zed-editor;
+  };
+
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
