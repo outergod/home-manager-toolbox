@@ -1,6 +1,8 @@
 { config, pkgs, emacs-overlay, nixgl, ... }:
 
 {
+  imports = [ ./desktop ];
+
   nixpkgs.overlays = [ emacs-overlay.overlays.default nixgl.overlay ];
   nixpkgs.config.allowUnfree = true;
 
