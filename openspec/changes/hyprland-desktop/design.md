@@ -97,6 +97,11 @@ Static Lua lives in `desktop/hypr/`.
 - **Hyprland:** `misc.allow_session_lock_restore = true`. Super+L runs `loginctl lock-session`.
 - **Automatic idle inhibit:** a window rule inhibits idle while any window is fullscreen. Manual inhibit ("caffeine") comes from the chosen shell or launcher and must work through the Wayland idle-inhibit protocol (tryout criterion). If none does, a small toggle script inhibits hypridle through `systemd-inhibit`.
 - **Polkit:** the image's hyprpolkitagent via D3. Shells' polkit agents stay off.
+- **Crash recovery from a TTY** (verified in task 4.9):
+  - If hyprlock dies, Hyprland stays locked and shows its crash screen, which takes no input.
+  - Restore with `hyprctl --instance 0 eval 'hl.dispatch(hl.dsp.exec_cmd("/usr/bin/hyprlock"))'`, then switch back and unlock.
+  - `loginctl lock-sessions` does not work from a TTY: it needs polkit authorization, and no agent runs there. Plain `loginctl lock-session` locks the TTY's own session, not Hyprland's.
+  - After switching VTs, release all keys before typing the password. An earlier attempt rejected the typed password, probably because of modifiers stuck from the VT switch.
 
 ### D5: Window model: a custom Lua "stack" layout
 

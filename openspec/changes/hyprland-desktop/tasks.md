@@ -24,15 +24,15 @@ Note: run `home-manager switch` on the host only (host terminal or `distrobox-ho
 
 ## 4. Phase 1: Lock and idle
 
-- [ ] 4.1 Configure `services.hypridle` with `package = null`: lock_cmd, before_sleep_cmd, `inhibit_sleep = 3`, after_sleep DPMS on (0.56 dispatch syntax), listeners at 900 s (`loginctl lock-session`) and 1200 s (DPMS off/on); verify `~/.config/hypr/hypridle.conf` content
-- [ ] 4.2 Link the image's `hypridle.service` into the Hyprland target's `.wants/`; verify it runs in Hyprland only
-- [ ] 4.3 Configure `programs.hyprlock` with `package = null` and an input field with `fade_on_empty = false`; verify `/usr/bin/hyprlock` shows the field and unlocks with the password
-- [ ] 4.4 Bind Super+L to `loginctl lock-session`; verify the keybind locks
-- [ ] 4.5 Add the window rule inhibiting idle for fullscreen windows; verify a fullscreen video survives a temporarily shortened idle timeout
-- [ ] 4.6 Verify idle lock with a temporarily shortened timeout, then restore 900/1200 s
-- [ ] 4.7 Verify suspend: `systemctl suspend`, resume, and confirm the first frame shown is the lock screen
-- [ ] 4.8 Verify lock over plain Steam (Big Picture fullscreen) covers both monitors
-- [ ] 4.9 Verify crash recovery once: kill hyprlock while locked, restore from TTY with `hyprctl --instance 0 eval 'hl.dispatch(hl.dsp.exec_cmd("/usr/bin/hyprlock"))'`, unlock
+- [x] 4.1 Configure `services.hypridle` with `package = null`: lock_cmd, before_sleep_cmd, `inhibit_sleep = 3`, after_sleep DPMS on (0.56 dispatch syntax), listeners at 900 s (`loginctl lock-session`) and 1200 s (DPMS off/on); verify `~/.config/hypr/hypridle.conf` content
+- [x] 4.2 Link the image's `hypridle.service` into the Hyprland target's `.wants/`; verify it runs in Hyprland only
+- [x] 4.3 Configure `programs.hyprlock` with `package = null` and an input field with `fade_on_empty = false`; verify `/usr/bin/hyprlock` shows the field and unlocks with the password
+- [x] 4.4 Bind Super+L to `loginctl lock-session`; verify the keybind locks
+- [x] 4.5 Add the window rule inhibiting idle for fullscreen windows; verify a fullscreen video survives a temporarily shortened idle timeout
+- [x] 4.6 Verify idle lock with a temporarily shortened timeout, then restore 900/1200 s
+- [x] 4.7 Verify suspend: `systemctl suspend`, resume, and confirm the first frame shown is the lock screen
+- [x] 4.8 Verify lock over plain Steam (Big Picture fullscreen) covers both monitors
+- [x] 4.9 Verify crash recovery once: kill hyprlock while locked, restore from TTY with `hyprctl --instance 0 eval 'hl.dispatch(hl.dsp.exec_cmd("/usr/bin/hyprlock"))'`, unlock
 
 ## 5. Phase 1: Dev container and autostart
 
