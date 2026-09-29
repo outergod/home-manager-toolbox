@@ -45,6 +45,9 @@ hl.bind("SUPER + SHIFT + RIGHT", move_to_monitor("right"))
 hl.bind("SUPER + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 hl.bind("ALT + TAB", hl.dsp.focus({ last = true }))
 
+-- Toggle US / Dvorak. There is no Lua dispatcher for it.
+hl.bind("SUPER + TAB", hl.dsp.exec_cmd("/usr/bin/hyprctl switchxkblayout all next"))
+
 -- Floating windows.
 hl.bind("SUPER + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind("SUPER + mouse:273", hl.dsp.window.resize(), { mouse = true })
