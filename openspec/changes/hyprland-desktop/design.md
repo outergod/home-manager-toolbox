@@ -191,7 +191,8 @@ Old workspace, special-workspace and pseudo-tiling binds are dropped.
   - It is wanted by `default.target`, so it runs for both sessions.
   - It has a generous `TimeoutStartSec`, because the container's first start runs its init.
 - **Effect:** container-launched Emacs and Zed start immediately on first use. There is no Emacs daemon unit.
-- **Emacs client:** `emacsclient.desktop` (chezmoi-managed) is retargeted into the container: `distrobox-enter -n nix -- emacsclient -c -a "" %F`. `-a ""` starts an Emacs daemon inside the container on first use, so no service is needed. The socket lives in the shared `/run/user/1000/emacs/`. The change is made in the dotfiles repo and applied with `chezmoi apply`.
+- **Emacs client:** `emacsclient.desktop` (chezmoi-managed) is retargeted into the container: `distrobox-enter -n nix -- emacsclient -c -a "" %F`. `-a ""` starts an Emacs daemon inside the container on first use, so no service is needed. The socket lives in the shared `/run/user/1000/emacs/`. The change is made in the dotfiles repo and applied with `chezmoi apply`. Like `emacs.desktop`, the entry uses absolute paths and passes `--env GTK_THEME=Adwaita:dark` to the container, so a daemon started from the client gets the same dark GTK theme.
+- **chezmoi auto-pushes:** the dotfiles config has `autoCommit` and `autoPush`, so `chezmoi add`/`re-add` commit and push immediately. Check `chezmoi diff` before a bare `chezmoi apply`: the source can lag behind live edits and would overwrite them.
 - **Alternatives rejected:**
   - `podman start nix`: returns before distrobox init has finished.
   - A Quadlet: distrobox owns the container's lifecycle and flags.

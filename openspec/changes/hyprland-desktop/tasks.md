@@ -37,9 +37,9 @@ Note: run `home-manager switch` on the host only (host terminal or `distrobox-ho
 ## 5. Phase 1: Dev container and autostart
 
 - [ ] 5.1 Add the `distrobox-nix` oneshot user unit (`/usr/bin/distrobox enter nix -- true`, `RemainAfterExit`, generous `TimeoutStartSec`, `WantedBy=default.target`); after a reboot, verify Emacs and Zed start from their launchers without entering the container first, in both GNOME and Hyprland
-- [ ] 5.2 Remove host-profile desktop entries for Zed and Emacs by filtering `share/applications` out of those packages; verify only one Zed and one Emacs entry exist (`ls ~/.nix-profile/share/applications`, GNOME overview)
+- [x] 5.2 Remove host-profile desktop entries for Zed and Emacs by filtering `share/applications` out of those packages; verify only one Zed and one Emacs entry exist (`ls ~/.nix-profile/share/applications`, GNOME overview)
 - [ ] 5.3 In the dotfiles repo, retarget `emacsclient.desktop` to `distrobox-enter -n nix -- emacsclient -c -a "" %F`, commit, `chezmoi apply`; verify the first launch starts a daemon in the container and the second reuses it
-- [ ] 5.4 Remove Vesktop's autostart (disable "start on login" in Vesktop, or delete `~/.config/autostart/dev.vencord.Vesktop.desktop`); verify it doesn't start at the next login
+- [x] 5.4 Remove Vesktop's autostart (disable "start on login" in Vesktop, or delete `~/.config/autostart/dev.vencord.Vesktop.desktop`); verify it doesn't start at the next login
 - [ ] 5.5 Enable Synology Drive's start-on-login from GNOME (fallback: HM-owned autostart entry running the flatpak); verify Bitwarden, Synology Drive and Steam start in Hyprland at login
 - [ ] 5.6 Phase 1 gate: `hyprctl configerrors` empty, all lock paths verified, polkit and keyring verified; report readiness for image task 8.5
 
