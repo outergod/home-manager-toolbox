@@ -6,3 +6,31 @@ hl.window_rule({
 
     idle_inhibit = "fullscreen",
 })
+
+-- Tiled windows already fill the monitor.
+hl.window_rule({
+    name  = "suppress-maximize",
+    match = { class = ".*" },
+
+    suppress_event = "maximize",
+})
+
+-- Dialogs float centred at their own size. Hyprland floats transient
+-- windows itself; these cover the rest.
+local function dialog_rule(name, match)
+    hl.window_rule({
+        name  = name,
+        match = match,
+
+        float          = true,
+        center         = true,
+        suppress_event = "maximize fullscreen",
+    })
+end
+
+dialog_rule("float-modal", { modal = true })
+
+-- Portal file pickers, polkit and pinentry.
+dialog_rule("float-prompts", {
+    class = "^(xdg-desktop-portal-.*|org\\.freedesktop\\.impl\\.portal\\..*|hyprpolkitagent|gcr-prompter|pinentry-.*)$",
+})

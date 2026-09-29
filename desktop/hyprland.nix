@@ -35,6 +35,7 @@ in
       content = ''
         return {
           terminal = ${toLua (lib.getExe config.programs.foot.package)},
+          playerctl = ${toLua (lib.getExe pkgs.playerctl)},
         }
       '';
     };
