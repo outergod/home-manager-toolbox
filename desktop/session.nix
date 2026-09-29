@@ -36,6 +36,17 @@ in
         export XCURSOR_THEME=Adwaita
         export XCURSOR_SIZE=24
       '';
+
+      # Synology Drive's own start-on-login setting writes no autostart entry
+      # when run as a flatpak (D12). Same command as its exported entry.
+      "autostart/com.synology.SynologyDrive.desktop".text = ''
+        [Desktop Entry]
+        Type=Application
+        Name=Synology Drive Client
+        Exec=/usr/bin/flatpak run --branch=stable --arch=x86_64 --command=synology-drive com.synology.SynologyDrive start
+        Icon=com.synology.SynologyDrive
+        X-Flatpak=com.synology.SynologyDrive
+      '';
     }
   ];
 }
