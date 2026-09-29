@@ -12,7 +12,7 @@ Findings:
 ## What Changes
 
 - Make `xdg-open` in the Hyprland session resolve relative paths before handing them to the default application, both on the host and from the nix container.
-- Leave GNOME's behaviour unchanged, and don't replace the image's `xdg-utils`.
+- Don't replace the image's `xdg-utils`. Hyprland is the main target; the GNOME fallback session only needs to keep opening files correctly.
 - Mechanism (a wrapper that makes paths absolute or delegates to `gio open`, where it sits in `PATH`, and how the container shim reaches it) is decided in design.md.
 
 ## Capabilities
@@ -25,7 +25,7 @@ Findings:
 
 ## Impact
 
-- Home Manager config, likely `desktop/tools.nix`. It may add a wrapper script and a `PATH` or environment adjustment scoped to the Hyprland session.
+- Home Manager config, likely `desktop/tools.nix`. It adds a wrapper script to the Home Manager profile.
 - `~/.nix-profile` is shared between the host and the nix container, so anything installed there must behave correctly in both.
 - Other launchers that go through `xdg-open` (terminal, launcher candidates from hyprland-desktop group 8) benefit.
 - Depends on hyprland-desktop only for the session scoping (`~/.config/uwsm/env-hyprland`, the Hyprland target).
