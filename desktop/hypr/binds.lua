@@ -7,5 +7,8 @@ end
 
 hl.bind("SUPER + Q", hl.dsp.window.close())
 
+-- Every lock goes through logind, which has hypridle run hyprlock.
+hl.bind("SUPER + L", hl.dsp.exec_cmd("loginctl lock-session"))
+
 -- Temporary until the launcher exists.
 hl.bind("SUPER + RETURN", app(nix.terminal))

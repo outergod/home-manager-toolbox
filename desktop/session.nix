@@ -28,6 +28,7 @@ in
 
   xdg.configFile = lib.mkMerge [
     (wantImageUnit "hyprpolkitagent.service")
+    (wantImageUnit "hypridle.service")
     {
       # Sourced by uwsm's environment preloader for the Hyprland session only.
       # Cursor matches GNOME's until the look phase picks one (D13).
