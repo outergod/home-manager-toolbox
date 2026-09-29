@@ -45,20 +45,20 @@ Note: run `home-manager switch` on the host only (host terminal or `distrobox-ho
 
 ## 6. Phase 2: Window model
 
-- [ ] 6.1 Spike: register a minimal Lua layout via `hl.layout.register` and confirm (a) the provider can identify the workspace being recalculated, (b) `bring_to_top` controls z-order of overlapping tiled windows, (c) `layout_msg` is reachable from a keybind; record findings in design.md D5 and pick stack layout or fallback
-- [ ] 6.2 Workspaces: persistent workspace 1 on the left monitor and 2 on the right, no workspace binds; verify new windows open on the monitor under the pointer and no other workspaces appear
-- [ ] 6.3 Implement stack mode (full area, front = most recent focus); verify with three windows that opening and focusing behave per spec
-- [ ] 6.4 Implement split mode (Super+Left/Right with MRU partner, Super+Up back to stack, auto-exit when a partner leaves); verify all window-management split scenarios
-- [ ] 6.5 Dialog rules: float modal/transient windows, portal file pickers, polkit and pinentry, and suppress maximize; verify a GTK file chooser, a Qt dialog and a polkit prompt float at natural size
-- [ ] 6.6 Super+Shift+Left/Right move to monitor; verify the window arrives in front and keeps focus
-- [ ] 6.7 Focus: `follow_mouse = 1`, warps on programmatic focus, Alt+Tab to previous window; verify raising a window on the other monitor moves pointer and focus, not the window
-- [ ] 6.8 Super+F true fullscreen toggle; honour app fullscreen requests; verify the bar is hidden in true fullscreen and visible otherwise
-- [ ] 6.9 Mouse binds (Super+LMB/RMB) and media/volume keys with `locked = true`; verify volume keys work while locked
+- [x] 6.1 Spike: register a minimal Lua layout via `hl.layout.register` and confirm (a) the provider can identify the workspace being recalculated, (b) `bring_to_top` controls z-order of overlapping tiled windows, (c) `layout_msg` is reachable from a keybind; record findings in design.md D5 and pick stack layout or fallback
+- [x] 6.2 Workspaces: persistent workspace 1 on the left monitor and 2 on the right, no workspace binds; verify new windows open on the monitor under the pointer and no other workspaces appear
+- [x] 6.3 Implement stack mode (full area, front = most recent focus); verify with three windows that opening and focusing behave per spec
+- [x] 6.4 Implement split mode (Super+Left/Right with MRU partner, Super+Up back to stack, auto-exit when a partner leaves); verify all window-management split scenarios
+- [x] 6.5 Dialog rules: float modal/transient windows, portal file pickers, polkit and pinentry, and suppress maximize; verify a GTK file chooser, a Qt dialog and a polkit prompt float at natural size
+- [x] 6.6 Super+Shift+Left/Right move to monitor; verify the window arrives in front and keeps focus
+- [x] 6.7 Focus: `follow_mouse = 1`, warps on programmatic focus, Alt+Tab to previous window; verify raising a window on the other monitor moves pointer and focus, not the window
+- [x] 6.8 Super+F true fullscreen toggle; honour app fullscreen requests; verify the bar is hidden in true fullscreen and visible otherwise
+- [x] 6.9 Mouse binds (Super+LMB/RMB) and media/volume keys with `locked = true`; verify volume keys work while locked
 
 ## 7. Phase 2: Keyboard
 
-- [ ] 7.1 Input: `kb_layout = "us,us"`, `kb_variant = ",dvorak"`, `compose:menu`; Super+Tab cycles the layout; verify on a regular keyboard
-- [ ] 7.2 Look up the Kyria's name with `hyprctl devices` and add a device block pinning it to plain `us`; verify toggling doesn't affect the Kyria
+- [x] 7.1 Input: `kb_layout = "us,us"`, `kb_variant = ",dvorak"`, `compose:menu`; Super+Tab cycles the layout; verify on a regular keyboard
+- [x] 7.2 Look up the Kyria's name with `hyprctl devices` and add a device block pinning it to plain `us`; verify toggling doesn't affect the Kyria
 
 ## 8. Phase 3/4: Shell and launcher tryout
 

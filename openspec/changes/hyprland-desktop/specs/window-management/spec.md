@@ -40,6 +40,10 @@ Super+Left and Super+Right SHALL split the current monitor in halves, putting th
 - **WHEN** a monitor is split and the user presses Super+Up
 - **THEN** the focused window fills the monitor again, with the others behind it
 
+#### Scenario: Another window focused while split
+- **WHEN** a monitor is split between A and B and a third window C on that monitor is focused
+- **THEN** C fills the monitor in front, and focusing A or B again shows the split
+
 #### Scenario: Split ends when a partner leaves
 - **WHEN** one of the two split windows is closed or moved to the other monitor
 - **THEN** the remaining windows on that monitor return to the full stack

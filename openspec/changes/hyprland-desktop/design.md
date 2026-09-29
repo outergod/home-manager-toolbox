@@ -110,10 +110,11 @@ Static Lua lives in `desktop/hypr/`.
   - Monitors are matched by `desc:` (BenQ serial), not by connector.
   - There are no workspace keybinds.
 - **The layout** is registered with `hl.layout.register("stack", provider)`.
-  - **Stack mode (default):** every tiled target gets the full `ctx.area`, and the most recently focused window is raised to the top (`bring_to_top`). The area excludes the bar's reserved zone, so the bar stays visible.
-  - **Split mode:** entered per workspace through `layout_msg`. The focused window takes the requested half; the most recently used other window on that workspace (lowest `focus_history_id`) takes the other half. The rest stay stacked behind.
+  - **Stack mode (default):** the most recently focused window gets the full `ctx.area`. The area excludes the bar's reserved zone, so the bar stays visible.
+  - **Parking:** every other window keeps its size but is placed far below all monitors, where it is neither drawn nor reachable by the pointer. Hyprland finds the tiled window under the pointer without regard to z-order, so overlapping tiled windows would take hover focus and clicks from the front window (found after the spike). A `window.active` handler sends a `focus` layout message, so the layout recalculates and shows the newly focused window. The parked box is enlarged by `gaps_in`, so a window keeps its exact size and apps don't re-layout on each switch. The `windowsMove` animation is disabled, because windows would otherwise slide in from where they are parked.
+  - **Split mode:** entered per workspace through `layout_msg`. The focused window takes the requested half; the most recently used other window on that workspace (lowest `focus_history_id`) takes the other half. The rest are parked. If a window outside the pair is focused, it fills the monitor and the pair is parked. The split is kept, and focusing either window of the pair shows it again.
   - **Leaving split mode:** Super+Up returns to stack mode. The mode also ends when either split window closes or leaves the monitor.
-  - **State:** kept in Lua per workspace ID, updated from `hl.on` window events.
+  - **State:** kept in Lua per workspace ID (keyed by window `stable_id`, which is never reused) and checked against the targets on each recalculation.
 - **Floating:** dialogs (modal, transient, fixed-size, portal file pickers, polkit and pinentry) float centred and are never handed to the layout. Hyprland floats modal and transient windows by default; explicit rules cover the known stragglers. There is no blanket maximize or fullscreen rule. Maximize requests are suppressed, which is harmless because tiled windows already fill the area.
 - **Focus:**
   - `follow_mouse = 1`, with cursor warps on programmatic focus. When the launcher raises a window on the other monitor, the cursor lands there and focus-follows-mouse doesn't snap back.
@@ -127,6 +128,12 @@ Static Lua lives in `desktop/hypr/`.
 - **Fallbacks, in order:**
   1. The built-in `scrolling` layout with `column_width = 1.0`: full-width columns act as a stack, and a split sets two columns to 0.5.
   2. dwindle with auto-grouping (groups act as a tabbed stack), with splits by moving a window out of its group.
+- **Spike results (task 6.1, Hyprland 0.56.2):** the stack layout is viable, so the fallbacks aren't needed.
+  - A registered layout is selected as `lua:<name>` (in `general.layout` or a workspace rule's `layout`), not by its bare name. A workspace rule changes the layout of an existing workspace immediately. Reload clears registered providers, and the config registers them again.
+  - (a) `ctx` has only `area`, `targets` and the geometry helpers, with no workspace field. Each workspace gets its own algorithm instance, and every target's `window.workspace` is set, so the workspace comes from `ctx.targets[1].window.workspace.id`. `focus_history_id` is current inside `recalculate`.
+  - (b) Hyprland draws the focused window above the other tiled windows, but only while it has focus. Once focus moves to the other monitor, the real z-order applies again. `bring_to_top` (no argument: the active window) sets that z-order, and dispatching it from a `window.active` handler works. Z-order turned out not to be enough, though: the pointer still reaches hidden windows (see Parking above). The built-in `monocle` layout avoids that by marking back windows invisible, which Lua layouts can't do. Only `place` and `set_box` are available, and both animate.
+  - (c) `hl.dsp.layout(msg)` reaches the active workspace's provider as `layout_msg(ctx, msg)`, with the same `ctx`. Returning `true` triggers a `recalculate`. Keybinds take the same dispatcher.
+  - Hyprland 0.56 also ships a built-in `monocle` layout. It wasn't needed, because the Lua layout covers both modes.
 
 ### D6: Keybindings
 
@@ -150,7 +157,8 @@ Old workspace, special-workspace and pseudo-tiling binds are dropped.
 ### D7: Keyboard layouts
 
 - Global input: `kb_layout = "us,us"`, `kb_variant = ",dvorak"`, `compose:menu` carried over. Super+Tab cycles the layout on all keyboards.
-- A device block for the Kyria rev3 pins it to plain `us`. The exact device name is confirmed with `hyprctl devices` during implementation (old config: `splitkb.com-kyria-rev3`).
+- A device block for the Kyria rev3 pins it to plain `us`. `hyprctl devices` confirms the name `splitkb.com-kyria-rev3`, the same as in the old config. Its media keys come from a separate `-consumer-control` device, which needs no block.
+- 0.56 has no Lua dispatcher for switching layouts, so Super+Tab runs `hyprctl switchxkblayout all next`. With a single layout, the Kyria stays on it.
 
 ### D8: Shell and launcher tryout
 
@@ -227,8 +235,8 @@ Old workspace, special-workspace and pseudo-tiling binds are dropped.
   → The path is the flake's fixed location. `hyprctl configerrors` is checked after each change. The Lua can move into the store once stable.
 - **nixGL doesn't reach child processes** (DMS spawning `qs`).
   → Verify at tryout, and wrap the child explicitly if needed.
-- **Overlapping stacked windows still render underneath** (small GPU cost; translucent windows show through).
-  → Acceptable. The fallback layouts avoid it if it's noticeable.
+- **Parked windows are positioned off-screen.** Something that trusts a window's position (a screenshot tool listing windows, a shell's window previews) may show them oddly.
+  → Checked during the tryout. Windows keep their size, so nothing re-lays out.
 - **Portal-written autostart entries are toggled by the apps themselves,** so they can reappear.
   → Documented in D12. They are managed from the app settings.
 - **uwsm's `fumon` fails while no notification daemon runs.** It reports failed units as notifications, and until the shell (D8) provides a notification server, it fails itself.
