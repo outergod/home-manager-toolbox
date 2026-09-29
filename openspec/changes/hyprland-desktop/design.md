@@ -203,7 +203,8 @@ Old workspace, special-workspace and pseudo-tiling binds are dropped.
 - Autostart uses standard XDG autostart, which uwsm runs in Hyprland.
 - **Bitwarden:** its existing portal-written entry.
 - **Steam:** its existing entry, as is.
-- **Synology Drive:** enable its own "start on login" setting from GNOME, so the entry is portal-written like Bitwarden's. If the app doesn't offer that, add an HM-owned `~/.config/autostart` entry that runs the flatpak.
+- **Synology Drive:** enable its own "start on login" setting from GNOME, so the entry is portal-written like Bitwarden's. If the app doesn't offer that, add an HM-owned `~/.config/autostart` entry that runs the flatpak. **Outcome:** the setting exists, but as a flatpak it only records the choice in `~/.SynologyDrive/data/` and writes no autostart entry, so `session.nix` owns the entry (same command as the flatpak's exported entry).
+- **Session differences:** in Hyprland, uwsm runs autostart entries as `app-*@autostart.service` units via `xdg-desktop-autostart.target`. GNOME's session manager launches them itself as `app-gnome-*` / `app-flatpak-*` scopes and never starts those units.
 - **Vesktop:** disable its "start on login" setting, or delete the file.
 - Flatpaks are kept (no Nix duplicates), so each app has exactly one install and one config.
 
@@ -230,6 +231,8 @@ Old workspace, special-workspace and pseudo-tiling binds are dropped.
   → Acceptable. The fallback layouts avoid it if it's noticeable.
 - **Portal-written autostart entries are toggled by the apps themselves,** so they can reappear.
   → Documented in D12. They are managed from the app settings.
+- **uwsm's `fumon` fails while no notification daemon runs.** It reports failed units as notifications, and until the shell (D8) provides a notification server, it fails itself.
+  → Expected until phase 4. Check `systemctl --user list-units --failed` manually until then.
 - **The container start adds time to login.**
   → It's a oneshot that doesn't block the graphical session. Launching Emacs just waits for the same start if it's still running.
 

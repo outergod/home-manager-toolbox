@@ -40,8 +40,8 @@ Note: run `home-manager switch` on the host only (host terminal or `distrobox-ho
 - [x] 5.2 Remove host-profile desktop entries for Zed and Emacs by filtering `share/applications` out of those packages; verify only one Zed and one Emacs entry exist (`ls ~/.nix-profile/share/applications`, GNOME overview)
 - [x] 5.3 In the dotfiles repo, retarget `emacsclient.desktop` to `distrobox-enter -n nix -- emacsclient -c -a "" %F`, commit, `chezmoi apply`; verify the first launch starts a daemon in the container and the second reuses it
 - [x] 5.4 Remove Vesktop's autostart (disable "start on login" in Vesktop, or delete `~/.config/autostart/dev.vencord.Vesktop.desktop`); verify it doesn't start at the next login
-- [ ] 5.5 Enable Synology Drive's start-on-login from GNOME (fallback: HM-owned autostart entry running the flatpak); verify Bitwarden, Synology Drive and Steam start in Hyprland at login
-- [ ] 5.6 Phase 1 gate: `hyprctl configerrors` empty, all lock paths verified, polkit and keyring verified; report readiness for image task 8.5
+- [x] 5.5 Enable Synology Drive's start-on-login from GNOME (fallback: HM-owned autostart entry running the flatpak); verify Bitwarden, Synology Drive and Steam start in Hyprland at login
+- [x] 5.6 Phase 1 gate: `hyprctl configerrors` empty, all lock paths verified, polkit and keyring verified; report readiness for image task 8.5
 
 ## 6. Phase 2: Window model
 
