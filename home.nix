@@ -23,10 +23,6 @@
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = with pkgs; [
-    ((emacsPackagesFor emacs-unstable-pgtk).emacsWithPackages (
-      epkgs: [ epkgs.vterm ]
-    ))
-
     starship chezmoi direnv fzf
     eza procs bottom ripgrep fd
     netcat socat dig xh
@@ -105,11 +101,6 @@
     packages = nixgl.packages;
     defaultWrapper = "mesa";
     vulkan.enable = true;
-  };
-
-  programs.zed-editor = {
-    enable = true;
-    package = config.lib.nixGL.wrap pkgs.zed-editor;
   };
 
   # Let Home Manager install and manage itself.
