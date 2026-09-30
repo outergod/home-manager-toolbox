@@ -48,7 +48,7 @@ Each monitor SHALL show a configured wallpaper.
 - **THEN** both monitors show the configured wallpaper instead of the Hyprland default
 
 ### Requirement: Screenshot UI
-Print SHALL open a screenshot interface to capture a region, a window or a whole monitor. Captures SHALL be copied to the clipboard and saved under `~/Pictures/Screenshots`, and SHALL work correctly on both monitors at scale 2.
+Print SHALL open a screenshot interface to capture a region or a whole monitor. Captures SHALL be copied to the clipboard and saved under `~/Pictures/Screenshots`, and SHALL work correctly on both monitors at scale 2.
 
 #### Scenario: Region screenshot
 - **WHEN** the user presses Print, selects a region on the right monitor and confirms

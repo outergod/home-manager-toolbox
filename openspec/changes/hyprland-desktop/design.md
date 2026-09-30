@@ -150,7 +150,7 @@ Static Lua lives in `desktop/hypr/`.
 | Super+F | toggle true fullscreen |
 | Super+Tab | toggle US / Dvorak (not on the Kyria) |
 | Alt+Tab | previous window |
-| Print | screenshot UI |
+| Print | screenshot UI (Alt+Print region, Shift+Print monitor) |
 | Super+LMB / RMB drag | move / resize floating windows |
 | Media and volume keys | work while locked (`locked = true`) |
 
@@ -220,9 +220,13 @@ Old workspace, special-workspace and pseudo-tiling binds are dropped.
 
 ### D10: Screenshots, clipboard, automount, terminal
 
-- **Screenshots:** candidates are the chosen shell's built-in tool, and `grim` + `slurp` + `satty`. Print opens region, window or screen selection; the result goes to the clipboard and `~/Pictures/Screenshots`. Tested on both monitors at scale 2.
-- **Clipboard history:** cliphist (HM service, Hyprland target), searched through the omnibox. If the chosen launcher has its own clipboard history, that replaces cliphist.
-- **Automount:** udiskie (HM service) with its unit bound to the Hyprland target, so it doesn't double-mount next to GNOME's automounting.
+- **Screenshots:** Noctalia's built-in tool. Print freezes the screen for its annotator, which can also crop; Alt+Print takes a region and Shift+Print the monitor under the pointer directly. Every capture goes to the clipboard and `~/Pictures/Screenshots`, sharp on both monitors at scale 2.
+  - **No window capture:** in the stack layout (D5) the front window fills the monitor below the bar, so a monitor or region capture covers it. Neither candidate offers one anyway.
+  - **Flameshot 14, compared and dropped:** it worked, but needs more steps. On Wayland it captures through the portal and first asks which monitor to use, then opens its editor. Noctalia's annotator was clearly better.
+  - `grim` + `slurp` + `satty` was the other candidate and wasn't needed.
+- **Clipboard history:** Vicinae's own history (alias `clip`), so no cliphist. Noctalia's history is turned off (`shell.clipboard_enabled = false`), so there is one history and one copy of everything copied.
+- **Omnibox prefixes:** Vicinae aliases in the HM-owned `nix.json` (D9): `clip`, `file` and `calc` followed by Space open their commands, and typing `power` lists lock, logout, suspend, reboot and power off. Vicinae's lock calls logind's `LockSession` on the user's seated session, which is the same path as `loginctl lock-session`.
+- **Automount:** udiskie (HM service) with its unit bound to the Hyprland target, so it doesn't double-mount next to GNOME's automounting. Its tray icon (`tray = "auto"`, shown while a removable device is present) uses StatusNotifier, which udiskie picks by itself on Wayland. HM ties the tray to its own `tray.target`, which the session never reaches, so the unit drops that and starts after Noctalia instead, like the autostart apps (D12).
 - **Terminal:** foot, `programs.foot`. It renders on the CPU, so it stays usable when GL is broken.
 
 ### D11: Dev container at login
@@ -259,6 +263,7 @@ Old workspace, special-workspace and pseudo-tiling binds are dropped.
 
 - A single palette defined in Nix (`theme.nix`) feeds Hyprland borders, hyprlock, foot, GTK and the bar, unless the tryout (criterion 9) hands theming to the shell.
 - **Theming owner (task 8.7): Nix.** Noctalia's theme templates stay off (its default), so it writes no GTK, Qt or terminal theme files; it only sets gsettings `color-scheme`. Its palette (`NordGold`: Nord with Nord yellow as the one accent, on pure black) is defined in `theme.nix`, which also holds the bar look. Windows have no gaps, borders or rounding; unfocused windows are dimmed slightly instead (`desktop/hypr/look.lua`).
+- **Wallpaper (task 9.7):** `desktop/wallpaper.jpg` in the repo, set as Noctalia's `wallpaper.default` on both monitors. The path is a store path that only changes with the image. The stale path from Noctalia's first-run wizard was removed from `settings.toml` once; a wallpaper picked in Noctalia's panel lands there again and takes precedence.
 - Includes the cursor theme, fonts, bar placement (one or both monitors) and the optional hot-edge reveal: a Lua timer polls the cursor at the top edge while a non-game window is fullscreen and raises the bar. Games are excluded by content type or class.
 
 ## Risks / Trade-offs

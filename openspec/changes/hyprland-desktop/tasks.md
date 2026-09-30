@@ -72,13 +72,13 @@ Note: run `home-manager switch` on the host only (host terminal or `distrobox-ho
 
 ## 9. Phase 4: Tools
 
-- [ ] 9.1 Screenshot UI on Print (shell built-in or grim + slurp + satty); verify region, window and monitor captures on both monitors at correct resolution, to clipboard and `~/Pictures/Screenshots`
-- [ ] 9.2 Clipboard history (launcher built-in or cliphist on the Hyprland target), reachable by prefix in the omnibox; verify recalling an earlier copy
-- [ ] 9.3 udiskie on the Hyprland target; verify a USB stick mounts in Hyprland and udiskie doesn't run in GNOME
-- [ ] 9.4 Omnibox sources: calculator, files, power actions (lock via `loginctl lock-session`); verify each launcher scenario in specs/launcher
-- [ ] 9.5 Caffeine toggle in the bar; verify idle lock is inhibited while enabled (shortened timeout test)
-- [ ] 9.6 Bar contents: clock, tray, volume, Bluetooth, network; verify tray icons of Bitwarden, Synology Drive and Steam work
-- [ ] 9.7 Wallpaper on both monitors; verify after re-login
+- [x] 9.1 Screenshot UI on Print (shell built-in, compared against Flameshot); verify region and monitor captures on both monitors at correct resolution, to clipboard and `~/Pictures/Screenshots`
+- [x] 9.2 Clipboard history (launcher built-in or cliphist on the Hyprland target), reachable by prefix in the omnibox; verify recalling an earlier copy
+- [x] 9.3 udiskie on the Hyprland target; verify a USB stick mounts in Hyprland and udiskie doesn't run in GNOME
+- [x] 9.4 Omnibox sources: calculator, files, power actions (lock via `loginctl lock-session`); verify each launcher scenario in specs/launcher
+- [x] 9.5 Caffeine toggle in the bar; verify idle lock is inhibited while enabled (shortened timeout test)
+- [x] 9.6 Bar contents: clock, tray, volume, Bluetooth, network; verify tray icons of Bitwarden, Synology Drive and Steam work
+- [x] 9.7 Wallpaper on both monitors; verify after re-login
 
 ## 10. Phase 5: Look
 
