@@ -3,6 +3,7 @@
 
 require("monitors")
 require("general")
+require("look")
 require("input")
 require("rules")
 require("stack")

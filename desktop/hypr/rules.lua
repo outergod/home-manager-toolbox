@@ -7,6 +7,15 @@ hl.window_rule({
     idle_inhibit = "fullscreen",
 })
 
+-- A fullscreen video on the other monitor stays bright (look.lua dims
+-- unfocused windows).
+hl.window_rule({
+    name  = "no-dim-fullscreen",
+    match = { fullscreen = true },
+
+    no_dim = true,
+})
+
 -- Tiled windows already fill the monitor.
 hl.window_rule({
     name  = "suppress-maximize",
