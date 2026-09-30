@@ -159,9 +159,27 @@ in
           });
         };
       };
-      # Noctalia also tries to own org.freedesktop.ScreenSaver. hypridle has
-      # to win it, or apps' D-Bus idle inhibitors never reach hypridle.
-      systemd.user.services.noctalia.Unit.After = [ "hypridle.service" ];
+      # Noctalia counts as started once it owns the tray watcher, and
+      # autostart apps start after that. Apps started earlier fall back to
+      # other tray protocols and never show up (Bitwarden, Synology Drive).
+      systemd.user.services.noctalia.Service = {
+        Type = "dbus";
+        BusName = "org.kde.StatusNotifierWatcher";
+      };
+      xdg.configFile."systemd/user/app-@autostart.service.d/after-shell.conf".text = ''
+        [Unit]
+        After=noctalia.service
+      '';
+
+      systemd.user.services.noctalia.Unit = {
+        # Noctalia also tries to own org.freedesktop.ScreenSaver. hypridle
+        # has to win it, or apps' D-Bus idle inhibitors never reach hypridle.
+        After = [ "hypridle.service" ];
+        # Noctalia reloads its config files itself. A restart would also
+        # replace its tray watcher, and some apps (Bitwarden, Synology
+        # Drive) never register their tray icons again.
+        X-Restart-Triggers = lib.mkForce [ ];
+      };
     })
 
     (lib.mkIf (cfg.shell == "noctalia" && cfg.launcher == "builtin") {
