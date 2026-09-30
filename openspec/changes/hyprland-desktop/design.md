@@ -189,7 +189,7 @@ Old workspace, special-workspace and pseudo-tiling binds are dropped.
 - **Record:** results and the final choice are recorded in this document (a "Tryout results" section) before phase 4 is closed.
 - **Fallback if both shells fail:** individual tools, meaning waybar, swaync and awww with the winning launcher.
 
-### Tryout results (task 8.5, in progress)
+### Tryout results (task 8.5)
 
 **Shells.** Both pass the guardrails (criterion 2): no second polkit agent, hypridle keeps `org.freedesktop.ScreenSaver`, and the shell's lock action and suspend/resume both show hyprlock.
 - **DMS:** works with 0.56's Lua config. It regenerates `~/.config/hypr/dms/layout.lua` and runs `hyprctl reload` at startup; our config doesn't load that file. Its Hyprland overview is a workspace grid built from real window positions, so it shows little with parked windows.
