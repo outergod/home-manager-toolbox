@@ -82,10 +82,10 @@ Note: run `home-manager switch` on the host only (host terminal or `distrobox-ho
 
 ## 10. Phase 5: Look
 
-- [ ] 10.1 Define the palette, fonts and cursor in `theme.nix` (or hand theming to the shell per 8.7); verify GTK/Qt apps are dark with the chosen cursor
-- [ ] 10.2 Apply the palette to Hyprland borders, hyprlock, foot and the bar/shell; verify the lock screen matches the desktop
-- [ ] 10.3 Decide bar placement (one or both monitors) with the user and configure it; verify
-- [ ] 10.4 Optional: hot-edge bar reveal over fullscreen non-game windows; verify with a fullscreen video and that games are excluded
+- [x] 10.1 Define the palette, fonts and cursor in `theme.nix` (or hand theming to the shell per 8.7); verify GTK/Qt apps are dark with the chosen cursor
+- [x] 10.2 Apply the palette to Hyprland borders, hyprlock, foot and the bar/shell; verify the lock screen matches the desktop
+- [x] 10.3 Decide bar placement (one or both monitors) with the user and configure it; verify
+- [x] 10.4 Optional: hot-edge bar reveal over fullscreen non-game windows; verify with a fullscreen video and that games are excluded (not enabled, by decision; recorded in design.md D13)
 
 ## 11. Wrap-up
 
