@@ -31,6 +31,13 @@ in
     DISPLAY_MODE=WAYLAND
   '';
 
+  # Synology Drive is an X11 Qt app, and XWayland doesn't scale X11 apps
+  # (hypr/general.lua), so Qt does.
+  xdg.dataFile."flatpak/overrides/com.synology.SynologyDrive".text = ''
+    [Environment]
+    QT_SCALE_FACTOR=2
+  '';
+
   # HM binds its desktop services (hypridle, shells, launchers, ...) to this.
   wayland.systemd.target = target;
 
@@ -43,6 +50,11 @@ in
       "uwsm/env-hyprland".text = ''
         export XCURSOR_THEME=Adwaita
         export XCURSOR_SIZE=24
+
+        # XWayland doesn't scale X11 apps (hypr/general.lua), so X11 GTK and
+        # CEF apps such as Steam scale themselves. Both monitors are at
+        # scale 2, so Wayland GTK apps are unaffected.
+        export GDK_SCALE=2
 
         # The image points apps at IBus, which doesn't run in Hyprland.
         # Chromium-based flatpaks then fail to start its portal, and every
