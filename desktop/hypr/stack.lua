@@ -126,7 +126,9 @@ local function layout_msg(ctx, msg)
             partner = w
         end
     end
-    if not (focused and partner) then return false end
+    -- Nothing to split with. Accepting the message avoids Hyprland's error
+    -- notification; the recalculation it triggers changes nothing.
+    if not (focused and partner) then return true end
 
     if msg == "left" then
         splits[ws.id] = { left = focused.stable_id, right = partner.stable_id }
@@ -156,9 +158,11 @@ hl.workspace_rule({ workspace = "1", monitor = monitors.left, persistent = true,
 hl.workspace_rule({ workspace = "2", monitor = monitors.right, persistent = true, default = true })
 
 -- Show the newly focused window. The message goes to the layout of the
--- focused window's workspace.
+-- focused window's workspace. During a reload, workspaces briefly run the
+-- default layout, which rejects the message with an error.
 hl.on("window.active", function(w)
-    if w and not w.floating then
+    if w and not w.floating and w.workspace
+        and w.workspace.tiled_layout == "lua:stack" then
         hl.dispatch(hl.dsp.layout("focus"))
     end
 end)
