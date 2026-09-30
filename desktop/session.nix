@@ -23,6 +23,14 @@ let
   };
 in
 {
+  # Bitwarden's launcher picks X11 when both display servers are available,
+  # which is blurry at scale 2 and misplaces menus. Wayland works fine. Owned
+  # here, so `flatpak override --user com.bitwarden.desktop` would conflict.
+  xdg.dataFile."flatpak/overrides/com.bitwarden.desktop".text = ''
+    [Environment]
+    DISPLAY_MODE=WAYLAND
+  '';
+
   # HM binds its desktop services (hypridle, shells, launchers, ...) to this.
   wayland.systemd.target = target;
 
