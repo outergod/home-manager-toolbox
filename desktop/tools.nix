@@ -40,7 +40,35 @@ in
 
   home.packages = [ xdg-open ];
 
-  # Noctalia's screenshots (D10) go to their own directory, not straight
-  # into ~/Pictures.
-  programs.noctalia.settings.shell.screenshot.directory = "~/Pictures/Screenshots";
+  programs.noctalia.settings.shell = {
+    # Noctalia's screenshots (D10) go to their own directory, not straight
+    # into ~/Pictures. They are also copied to the clipboard by default.
+    screenshot.directory = "~/Pictures/Screenshots";
+    # Vicinae keeps the clipboard history (D10), so there is only one copy
+    # of everything copied.
+    clipboard_enabled = false;
+  };
+
+  # Print and friends in binds.lua.
+  desktop.nixLua.noctalia = lib.getExe config.programs.noctalia.package;
+
+  # GNOME automounts on its own, so udiskie runs in the Hyprland session
+  # only (D10). Its tray icon shows while a removable device is present.
+  services.udiskie = {
+    enable = true;
+    tray = "auto";
+  };
+  systemd.user.services.udiskie = {
+    Unit = {
+      # HM's tray.target isn't part of the session. The tray is Noctalia's,
+      # and apps that start before it never show up there (session.nix).
+      Requires = lib.mkForce [ ];
+      After = lib.mkForce [
+        config.wayland.systemd.target
+        "noctalia.service"
+      ];
+      PartOf = lib.mkForce [ config.wayland.systemd.target ];
+    };
+    Install.WantedBy = lib.mkForce [ config.wayland.systemd.target ];
+  };
 }

@@ -81,6 +81,13 @@ if nix.windows then
     hl.bind("SUPER + SPACE", hl.dsp.exec_cmd(nix.windows))
 end
 
+-- Screenshots go to the clipboard and ~/Pictures/Screenshots. Print freezes
+-- the screen for Noctalia's annotator, which can also crop; the others take
+-- a region or the monitor under the pointer directly.
+hl.bind("Print", hl.dsp.exec_cmd(nix.noctalia .. " msg screenshot-annotate"))
+hl.bind("ALT + Print", hl.dsp.exec_cmd(nix.noctalia .. " msg screenshot-region"))
+hl.bind("SHIFT + Print", hl.dsp.exec_cmd(nix.noctalia .. " msg screenshot-fullscreen"))
+
 -- Temporary until the launcher exists.
 hl.bind("SUPER + RETURN", app(nix.terminal))
 

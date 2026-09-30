@@ -83,6 +83,11 @@
         pure_black_dark = true;
       };
 
+      # On both monitors. From the store, so it changes only with the image.
+      # A wallpaper picked in Noctalia's panel lands in settings.toml and
+      # takes precedence.
+      wallpaper.default.path = "${./wallpaper.jpg}";
+
       notification.background_opacity = 0.8;
       osd.background_opacity = 0.8;
 

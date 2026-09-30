@@ -85,6 +85,22 @@ in
     # With the default "exclusive", Hyprland refuses to move focus while the
     # panel is open, so windows behind others can't be raised (D8).
     launcher_window.layer_shell.keyboard_interactivity = "on_demand";
+
+    # Prefixes for the omnibox's other sources. An alias followed by Space
+    # opens its command, and typing "power" lists all power actions. The
+    # calculator also answers in plain search. Lock goes through logind.
+    providers = {
+      clipboard.entrypoints.history.alias = "clip";
+      files.entrypoints.search.alias = "file";
+      calculator.entrypoints.history.alias = "calc";
+      power.entrypoints = {
+        lock.alias = "power lock";
+        logout.alias = "power logout";
+        suspend.alias = "power suspend";
+        reboot.alias = "power reboot";
+        power-off.alias = "power off";
+      };
+    };
   };
 
   # settings.json belongs to Vicinae, so the import can't be added from
