@@ -42,6 +42,5 @@ in
 
   # Noctalia's screenshots (D10) go to their own directory, not straight
   # into ~/Pictures.
-  programs.noctalia.settings.shell.screenshot.directory =
-    lib.mkIf (config.desktop.shell == "noctalia") "~/Pictures/Screenshots";
+  programs.noctalia.settings.shell.screenshot.directory = "~/Pictures/Screenshots";
 }

@@ -5,7 +5,7 @@
   # top edge, full width, square, black at 80%, flat modules, bold Noto Sans
   # at about 12px. Nord accents on a pure black surface. Guardrails stay in
   # shell.nix; the settings screen still overrides all of this.
-  programs.noctalia = lib.mkIf (config.desktop.shell == "noctalia") {
+  programs.noctalia = {
     # Nord, with Nord yellow as the one accent instead of the frost greens
     # and blues: outlines (floating panel borders), primary accents, and
     # snow and orange as secondary and tertiary. Noctalia rejects a palette
