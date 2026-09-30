@@ -67,8 +67,8 @@ Note: run `home-manager switch` on the host only (host terminal or `distrobox-ho
 - [x] 8.3 Noctalia 5 candidate: HM module, lock/polkit/idle disabled, lock action → `loginctl lock-session`, working GL; verify guardrails
 - [x] 8.4 Vicinae and Walker (+ Elephant) launcher candidates via HM modules, bound to the Hyprland target; verify each opens on Super+Space
 - [ ] 8.5 Evaluate each shell × launcher combination against the D8 checklist (0.56 compatibility, guardrails, caffeine vs hypridle, launcher spec, bar, notifications/DND, screenshots, config ownership, theming); record results in a "Tryout results" section in design.md
-- [ ] 8.6 Decide shell and launcher with the user, set the options, remove unused candidates; record the decision in design.md
-- [ ] 8.7 Decide ownership of the chosen shell's config (HM, chezmoi, or layered) and of theming; record in design.md D9/D13 and set up accordingly; verify `home-manager switch` and `chezmoi apply` don't conflict
+- [x] 8.6 Decide shell and launcher with the user, set the options, remove unused candidates; record the decision in design.md
+- [x] 8.7 Decide ownership of the chosen shell's config (HM, chezmoi, or layered) and of theming; record in design.md D9/D13 and set up accordingly; verify `home-manager switch` and `chezmoi apply` don't conflict
 
 ## 9. Phase 4: Tools
 

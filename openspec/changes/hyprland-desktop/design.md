@@ -165,6 +165,7 @@ Old workspace, special-workspace and pseudo-tiling binds are dropped.
 ### D8: Shell and launcher tryout
 
 - **Selection:** a local option in `shell.nix`, `desktop.shell = "dms" | "noctalia" | "none"` and `desktop.launcher = "builtin" | "vicinae" | "walker" | "none"`. `builtin` requires a shell. Each candidate's commands reach the binds through `nix.lua` (`desktop.nixLua`): `launcher` (Ctrl+Space) and, where it has one, `windows` (Super+Space): Vicinae's Switch Windows deeplink, Noctalia's launcher prefilled with `/win `, Walker's windows provider. DMS's launcher has no window list. Only the selected combination is installed and started (bound to the Hyprland target). Switching is a one-line edit plus a switch, and rollback is a generation rollback.
+- **Decision (task 8.6): Noctalia with Vicinae.** Noctalia reaches the old waybar look through config alone, keeps its settings-screen changes in a separate file, and passes the whole checklist. Vicinae lists every window, raises windows behind others, and offers contextual actions. The switch and the other candidates (DMS, Walker with Elephant) were removed from `shell.nix`; their results stay under "Tryout results" below. `shell.nix` now configures Noctalia and Vicinae directly and still hands the launcher commands to `nix.lua`.
 - **Packaging:** DMS starts from the nixpkgs package with our own unit, so no new flake input is needed. DMS's flake and its HM module are adopted only if DMS wins and the module adds value.
 - **GPU drivers:** the candidates render with GL. They find nixpkgs' Mesa through `/run/opengl-driver` (HM `targets.genericLinux.gpu`), with no wrapper. `dms` is wrapped only to put `qs` on PATH, since the nixpkgs package doesn't bring Quickshell along.
   - **Why not nixGL (found in task 8.2):** the nixGL wrapper sets `LD_LIBRARY_PATH` (Nix Mesa, libstdc++), and everything the wrapped program starts inherits it. Host C++ binaries then fail to load, e.g. DMS's `/usr/bin/hyprctl reload` (`GLIBCXX_3.4.35 not found`), and host apps started by a shell directly would too. nixGL's own nixpkgs pin also shipped an older libstdc++ than current packages need, so Noctalia didn't load at all.
@@ -212,6 +213,10 @@ Old workspace, special-workspace and pseudo-tiling binds are dropped.
 - **chezmoi owns** files edited through a program's settings screen, tweaked live and captured with `chezmoi re-add`.
 - **Never both:** a path is never managed by both tools. HM refuses to clobber existing files, and chezmoi would replace HM's symlinks.
 - **During the tryout,** shell config is unmanaged (native). After the choice, criterion 8 decides between HM, chezmoi, or layered (HM defaults plus native overrides stored elsewhere), and the decision is written down here.
+- **Decision (task 8.7): layered, HM plus native, no chezmoi.**
+  - **Noctalia:** HM owns `~/.config/noctalia/config.toml` (guardrails in `shell.nix`, look in `theme.nix`, screenshot directory in `tools.nix`) and the palette in `palettes/NordGold.json`. The settings screen writes to `~/.local/state/noctalia/settings.toml`, which overrides config.toml and can be copied into Nix when a change should stay. Config changes reload live, without restarting Noctalia.
+  - **Vicinae:** `~/.config/vicinae/settings.json` stays Vicinae's own, written by its settings screen. It imports the HM-owned `nix.json`, which holds what the desktop relies on (`on_demand`, D8). Values in settings.json take precedence over imports, so these keys must not be set there. Activation warns if settings.json doesn't import `nix.json`.
+  - **chezmoi** owns none of these. It manages icons in `~/.local/share/icons/hicolor`, where HM only adds `index.theme`; `chezmoi diff` shows no change there.
 
 ### D10: Screenshots, clipboard, automount, terminal
 
@@ -251,6 +256,7 @@ Old workspace, special-workspace and pseudo-tiling binds are dropped.
 ### D13: Look (last phase)
 
 - A single palette defined in Nix (`theme.nix`) feeds Hyprland borders, hyprlock, foot, GTK and the bar, unless the tryout (criterion 9) hands theming to the shell.
+- **Theming owner (task 8.7): Nix.** Noctalia's theme templates stay off (its default), so it writes no GTK, Qt or terminal theme files; it only sets gsettings `color-scheme`. Its palette (`NordGold`: Nord with Nord yellow as the one accent, on pure black) is defined in `theme.nix`, which also holds the bar look. Windows have no gaps, borders or rounding; unfocused windows are dimmed slightly instead (`desktop/hypr/look.lua`).
 - Includes the cursor theme, fonts, bar placement (one or both monitors) and the optional hot-edge reveal: a Lua timer polls the cursor at the top edge while a non-game window is fullscreen and raises the bar. Games are excluded by content type or class.
 
 ## Risks / Trade-offs
