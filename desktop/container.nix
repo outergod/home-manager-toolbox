@@ -31,6 +31,13 @@ in
     package = withoutDesktopEntries pkgs.zed-editor;
   };
 
+  # distrobox exports container apps' icons to ~/.local/share/icons/hicolor
+  # without an index.theme. Some icon lookups (Noctalia, Qt) then only
+  # search a few fixed sizes, which miss Zed's 512x512 icon. The image's
+  # index.theme lists every hicolor size.
+  xdg.dataFile."icons/hicolor/index.theme".source =
+    config.lib.file.mkOutOfStoreSymlink "/usr/share/icons/hicolor/index.theme";
+
   # Starts the container at login in any session, so container-launched apps
   # don't wait for its init on first use. The first start runs distrobox's
   # init, hence the generous timeout.
