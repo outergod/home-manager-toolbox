@@ -21,7 +21,20 @@ let
   '';
 in
 {
-  wayland.windowManager.hyprland = {
+  # Nix-derived values for the static Lua, loaded with require("nix").
+  # Other modules add their own, e.g. the launcher command.
+  options.desktop.nixLua = lib.mkOption {
+    type = with lib.types; attrsOf (nullOr str);
+    default = { };
+    description = "Values exposed to the Hyprland Lua config as the `nix` module.";
+  };
+
+  config.desktop.nixLua = {
+    terminal = lib.getExe config.programs.foot.package;
+    playerctl = lib.getExe pkgs.playerctl;
+  };
+
+  config.wayland.windowManager.hyprland = {
     enable = true;
     configType = "lua";
     # Hyprland, its portal and uwsm come from the image.
@@ -29,15 +42,9 @@ in
     portalPackage = null;
     systemd.enable = false;
 
-    # Nix-derived values for the static Lua, loaded with require("nix").
     extraLuaFiles.nix = {
       autoLoad = false;
-      content = ''
-        return {
-          terminal = ${toLua (lib.getExe config.programs.foot.package)},
-          playerctl = ${toLua (lib.getExe pkgs.playerctl)},
-        }
-      '';
+      content = "return ${toLua config.desktop.nixLua}\n";
     };
 
     extraConfig = ''
@@ -47,7 +54,7 @@ in
     '';
   };
 
-  xdg.configFile = lib.mkMerge [
+  config.xdg.configFile = lib.mkMerge [
     (lib.mapAttrs' (
       name: _:
       lib.nameValuePair "hypr/${name}" {

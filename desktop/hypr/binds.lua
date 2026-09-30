@@ -33,6 +33,16 @@ hl.bind("SUPER + Q", hl.dsp.window.close())
 -- Every lock goes through logind, which has hypridle run hyprlock.
 hl.bind("SUPER + L", hl.dsp.exec_cmd("loginctl lock-session"))
 
+-- The selected launcher (shell.nix): the omnibox on Ctrl+Space, which is
+-- Cmd+Space on the Kyria in Mac mode, and its list of open windows on
+-- Super+Space. Both only talk to the launcher's already running daemon.
+if nix.launcher then
+    hl.bind("CTRL + SPACE", hl.dsp.exec_cmd(nix.launcher))
+end
+if nix.windows then
+    hl.bind("SUPER + SPACE", hl.dsp.exec_cmd(nix.windows))
+end
+
 -- Temporary until the launcher exists.
 hl.bind("SUPER + RETURN", app(nix.terminal))
 
