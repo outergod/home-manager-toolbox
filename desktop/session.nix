@@ -43,6 +43,11 @@ in
       "uwsm/env-hyprland".text = ''
         export XCURSOR_THEME=Adwaita
         export XCURSOR_SIZE=24
+
+        # The image points apps at IBus, which doesn't run in Hyprland.
+        # Chromium-based flatpaks then fail to start its portal, and every
+        # failure shows up as a notification. Compose works through xkb.
+        unset QT_IM_MODULE QT_IM_MODULES XMODIFIERS
       '';
 
       # Synology Drive's own start-on-login setting writes no autostart entry
