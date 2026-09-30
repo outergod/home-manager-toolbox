@@ -16,6 +16,15 @@ hl.window_rule({
     no_dim = true,
 })
 
+-- Synology Drive's tray popup closes when it loses focus, which with focus
+-- following the pointer happens on the first mouse move.
+hl.window_rule({
+    name  = "synology-popup-stay-focused",
+    match = { title = "^cloud-drive-ui$" },
+
+    stay_focused = true,
+})
+
 -- Tiled windows already fill the monitor.
 hl.window_rule({
     name  = "suppress-maximize",
