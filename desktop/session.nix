@@ -38,6 +38,23 @@ in
     QT_SCALE_FACTOR=2
   '';
 
+  # The Steam runtime probes the IBus portal at every start. IBus doesn't run
+  # in Hyprland, so the portal exits with an error, and the failed unit shows
+  # up as a notification. The request still fails, just quietly. In GNOME,
+  # where IBus runs, the portal works as before. User service files take
+  # precedence over /usr/share/dbus-1/services.
+  xdg.dataFile."dbus-1/services/org.freedesktop.portal.IBus.service".text =
+    let
+      portal = pkgs.writeShellScript "ibus-portal" ''
+        /usr/libexec/ibus-portal "$@" || exit 0
+      '';
+    in
+    ''
+      [D-BUS Service]
+      Name=org.freedesktop.portal.IBus
+      Exec=${portal}
+    '';
+
   # HM binds its desktop services (hypridle, shells, launchers, ...) to this.
   wayland.systemd.target = target;
 
