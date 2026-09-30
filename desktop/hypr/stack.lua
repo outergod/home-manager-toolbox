@@ -26,16 +26,25 @@ local function workspace_of(ctx)
     end
 end
 
--- The most recently focused window. One that never had focus yet (history
--- ID -1) just opened, and goes in front too.
+-- Focus order by stable ID, counted by the window.active handler below.
+-- Hyprland's focus_history_id can't be relied on here: a new window can get
+-- focus before it is added to the layout, and is then added with a stale
+-- history ID, which put it behind the old front window.
+local focus_order, focus_count = {}, 0
+
+-- The most recently focused window. Windows focused before a reload have no
+-- count; for them, Hyprland's focus history decides. One that never had
+-- focus yet (history ID -1) just opened, and goes in front too.
 local function front_of(ctx)
     local front
     for _, t in ipairs(ctx.targets) do
         local w = t.window
         if w then
+            local count = focus_order[w.stable_id] or 0
             local rank = w.focus_history_id < 0 and -1 or w.focus_history_id
-            if not front or rank <= front.rank then
-                front = { id = w.stable_id, rank = rank }
+            if not front or count > front.count
+                or (count == front.count and rank <= front.rank) then
+                front = { id = w.stable_id, count = count, rank = rank }
             end
         end
     end
@@ -166,6 +175,10 @@ hl.workspace_rule({ workspace = "2", monitor = monitors.right, persistent = true
 -- with an error. The active workspace is checked rather than the window's:
 -- a window that has just opened has no workspace yet at this point.
 hl.on("window.active", function(w)
+    if w and not w.floating then
+        focus_count = focus_count + 1
+        focus_order[w.stable_id] = focus_count
+    end
     local ws = hl.get_active_workspace()
     if w and not w.floating and ws and ws.tiled_layout == "lua:stack" then
         hl.dispatch(hl.dsp.layout("focus"))
