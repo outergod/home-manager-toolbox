@@ -4,6 +4,10 @@ let
   # hyprlock and hypridle come from the image (D4). The HM modules only
   # write their configs.
   dpms = action: "/usr/bin/hyprctl dispatch 'hl.dsp.dpms({action = \"${action}\"})'";
+
+  inherit (config.desktop.theme) palette fonts wallpaper;
+  rgb = c: "rgb(${c})";
+  rgba = c: alpha: "rgba(${c}${alpha})";
 in
 {
   services.hypridle = {
@@ -44,11 +48,62 @@ in
   programs.hyprlock = {
     enable = true;
     package = null;
-    settings = {
+    # The desktop's look (theme.nix): the wallpaper, blurred and darkened,
+    # the bar's bold Noto Sans, and a square field on black with the
+    # accent as its outline.
+    settings = with palette; {
+      general.hide_cursor = true;
+
+      background = [
+        {
+          monitor = "";
+          path = "${wallpaper}";
+          blur_passes = 3;
+          brightness = 0.6;
+        }
+      ];
+
+      label = [
+        {
+          monitor = "";
+          text = "$TIME";
+          font_family = "${fonts.sans} Bold";
+          font_size = 90;
+          color = rgb nord6;
+          position = "0, 160";
+          halign = "center";
+          valign = "center";
+        }
+        {
+          monitor = "";
+          text = ''cmd[update:60000] date +"%A, %F"'';
+          font_family = "${fonts.sans} Bold";
+          font_size = 20;
+          color = rgb nord4;
+          position = "0, 60";
+          halign = "center";
+          valign = "center";
+        }
+      ];
+
       input-field = [
         {
           monitor = "";
           fade_on_empty = false;
+          size = "300, 50";
+          position = "0, -40";
+          halign = "center";
+          valign = "center";
+          rounding = 0;
+          outline_thickness = 2;
+          outer_color = rgb accent;
+          inner_color = rgba black "cc";
+          font_color = rgb nord6;
+          font_family = fonts.sans;
+          placeholder_text = "";
+          check_color = rgb nord12;
+          fail_color = rgb nord11;
+          fail_text = "$PAMFAIL";
         }
       ];
     };

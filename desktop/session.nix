@@ -63,10 +63,10 @@ in
     (wantImageUnit "hypridle.service")
     {
       # Sourced by uwsm's environment preloader for the Hyprland session only.
-      # Cursor matches GNOME's until the look phase picks one (D13).
+      # The cursor is the desktop's (theme.nix).
       "uwsm/env-hyprland".text = ''
-        export XCURSOR_THEME=Adwaita
-        export XCURSOR_SIZE=24
+        export XCURSOR_THEME=${config.desktop.theme.cursor.name}
+        export XCURSOR_SIZE=${toString config.desktop.theme.cursor.size}
 
         # XWayland doesn't scale X11 apps (hypr/general.lua), so X11 GTK and
         # CEF apps such as Steam scale themselves. Both monitors are at
