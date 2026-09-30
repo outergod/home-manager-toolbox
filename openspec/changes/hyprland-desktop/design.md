@@ -12,7 +12,7 @@ See proposal.md for motivation and scope. This section records the facts about t
 - `wayland.windowManager.hyprland.configType` is an enum of `"hyprlang"` and `"lua"`. The default depends on `stateVersion`: it is `hyprlang` for our 25.05, so `lua` must be set explicitly.
 - With `package = null`, HM still generates `hypr/hyprland.lua`. It does not generate `hypr/.luarc.json` and does not reload the config on change.
 - `extraLuaFiles` modules are `require`d before `settings` are rendered, after HM prepends `$XDG_CONFIG_HOME/hypr` to `package.path`.
-- `wayland.systemd.target` (default `graphical-session.target`) is the target that walker, elephant, noctalia, vicinae, hypridle and other modules bind their units to.
+- `wayland.systemd.target` (default `graphical-session.target`) is the target that noctalia, hypridle and other modules bind their units to. vicinae has its own `systemd.target` option, and walker and elephant hardcode `graphical-session.target`, so `shell.nix` overrides their units.
 - `services.hypridle` and `programs.hyprlock` accept `package = null`, which writes the config only and creates no unit. `services.hyprpolkitagent`'s package is not nullable, so that module can't be used.
 
 **Pinned nixpkgs**
@@ -139,12 +139,14 @@ Static Lua lives in `desktop/hypr/`.
 
 | Keys | Action |
 |---|---|
-| Super+Space | omnibox |
+| Ctrl+Space | omnibox (Cmd+Space on the Kyria in Mac mode, as on macOS) |
+| Super+Space | window switcher (the launcher's list of open windows) |
 | Super+Q | close window |
 | Super+L | lock (`loginctl lock-session`) |
 | Super+Left / Right | split: focused window to the left / right half |
 | Super+Up | back to full stack |
 | Super+Shift+Left / Right | move window to the other monitor |
+| Super+Down | swap the front windows of both monitors |
 | Super+F | toggle true fullscreen |
 | Super+Tab | toggle US / Dvorak (not on the Kyria) |
 | Alt+Tab | previous window |
@@ -162,9 +164,16 @@ Old workspace, special-workspace and pseudo-tiling binds are dropped.
 
 ### D8: Shell and launcher tryout
 
-- **Selection:** a local option in `shell.nix`, `desktop.shell = "dms" | "noctalia" | "none"` and `desktop.launcher = "builtin" | "vicinae" | "walker"`. Only the selected combination is installed and started (bound to the Hyprland target). Switching is a one-line edit plus a switch, and rollback is a generation rollback.
+- **Selection:** a local option in `shell.nix`, `desktop.shell = "dms" | "noctalia" | "none"` and `desktop.launcher = "builtin" | "vicinae" | "walker" | "none"`. `builtin` requires a shell. Each candidate's commands reach the binds through `nix.lua` (`desktop.nixLua`): `launcher` (Ctrl+Space) and, where it has one, `windows` (Super+Space): Vicinae's Switch Windows deeplink, Noctalia's launcher prefilled with `/win `, Walker's windows provider. DMS's launcher has no window list. Only the selected combination is installed and started (bound to the Hyprland target). Switching is a one-line edit plus a switch, and rollback is a generation rollback.
 - **Packaging:** DMS starts from the nixpkgs package with our own unit, so no new flake input is needed. DMS's flake and its HM module are adopted only if DMS wins and the module adds value.
-- **nixGL:** DMS, Noctalia and Vicinae render with GL and are wrapped with `config.lib.nixGL.wrap`. For DMS, the wrap must also reach the `qs` process it spawns.
+- **GPU drivers:** the candidates render with GL. They find nixpkgs' Mesa through `/run/opengl-driver` (HM `targets.genericLinux.gpu`), with no wrapper. `dms` is wrapped only to put `qs` on PATH, since the nixpkgs package doesn't bring Quickshell along.
+  - **Why not nixGL (found in task 8.2):** the nixGL wrapper sets `LD_LIBRARY_PATH` (Nix Mesa, libstdc++), and everything the wrapped program starts inherits it. Host C++ binaries then fail to load, e.g. DMS's `/usr/bin/hyprctl reload` (`GLIBCXX_3.4.35 not found`), and host apps started by a shell directly would too. nixGL's own nixpkgs pin also shipped an older libstdc++ than current packages need, so Noctalia didn't load at all.
+  - **Setup:** `sudo non-nixos-gpu-setup` on the host installs a tmpfiles.d rule for the link and a gcroot. It is needed once, and again when nixpkgs' Mesa changes; activation warns when it is due.
+  - **Container:** the `nix` distrobox has its own `/run`, and container root can't write the host's gcroots, so the setup script can't run there. A separate oneshot unit, `distrobox-nix-gpu` (after `distrobox-nix`), runs `podman exec --user root nix ln -sfn <drivers> /run/opengl-driver`. It changes with the drivers, so a switch restarts it and updates the link; it never starts or stops the container. This covers Zed, which was the only nixGL-wrapped app before.
+- **Guardrails as implemented:**
+  - DMS: own unit with `DMS_DISABLE_POLKIT=1` (its only switch). `settings.json` stays native and writable, since a read-only file makes the settings screen drop all changes. An activation step forces the guardrail keys back in on each switch: `loginctlLockIntegration = false` (ignore logind Lock and suspend), `customPowerActionLock = "loginctl lock-session"` (every lock button), `lockBeforeSuspend`/`lockAtStartup = false`, all idle timeouts 0. DMS has no way to turn its locker off entirely.
+  - Noctalia: HM `config.toml` holds only the guardrails (`lockscreen.enabled = false`, `shell.polkit_agent = false`, idle behaviours off, a `command` session row for lock). The settings screen writes to `~/.local/state/noctalia/settings.toml`, which overrides config.toml.
+  - Both try to own `org.freedesktop.ScreenSaver`; their units start after `hypridle.service` so hypridle keeps it.
 - **Guardrails (fixed, not tryout options):** the shell's lock screen, polkit agent and idle manager are disabled. Every "lock" action in the shell calls `loginctl lock-session`. If a shell can't disable its polkit agent or redirect its lock action, it fails the tryout.
 - **Checklist,** applied to each combination:
   1. Works with Hyprland 0.56: window list, focus, workspaces, events.
@@ -179,6 +188,22 @@ Old workspace, special-workspace and pseudo-tiling binds are dropped.
 - **Record:** results and the final choice are recorded in this document (a "Tryout results" section) before phase 4 is closed.
 - **Fallback if both shells fail:** individual tools, meaning waybar, swaync and awww with the winning launcher.
 
+### Tryout results (task 8.5, in progress)
+
+**Shells.** Both pass the guardrails (criterion 2): no second polkit agent, hypridle keeps `org.freedesktop.ScreenSaver`, and the shell's lock action and suspend/resume both show hyprlock.
+- **DMS:** works with 0.56's Lua config. It regenerates `~/.config/hypr/dms/layout.lua` and runs `hyprctl reload` at startup; our config doesn't load that file. Its Hyprland overview is a workspace grid built from real window positions, so it shows little with parked windows.
+- **Noctalia:** it can't resolve its logind session when run as a user service (`NoSessionForPID`), which only affects brightness. Its first-run wizard writes `~/.local/state/noctalia/settings.toml`, with the wallpaper as a store path that goes stale after an upgrade (set it explicitly, task 9.7). Its window switcher (`noctalia msg window-switcher`, `shell.window_switcher.mru`) is an icon-and-title grid of all windows without live previews: usable, not an exposé.
+
+**Launchers (criterion 4).**
+- **DMS built-in:** no open-window entries (only through third-party plugins) and no calculator. Fails.
+- **Noctalia built-in:** open windows under the `/win` prefix work; `shell.launcher.providers.windows.global` can add them to plain search.
+- **Vicinae:** open apps appear in plain search with contextual actions; selecting the app focuses its first window. Every window, with title and workspace, is listed in the "Switch Windows" command (`wm` provider), which Super+Space opens directly through `vicinae deeplink vicinae://launch/wm/switch-windows`. The user's favourite so far.
+  - **Required setting:** `launcher_window.layer_shell.keyboard_interactivity = "on_demand"`. With the default `exclusive`, Hyprland refuses to move focus while the panel holds the keyboard. The focus request still warps the pointer toward the parked window, which clamps it to the bottom edge, and the window stays parked. Visible windows only seemed to work because focus-follows-mouse picked them up after the panel closed. `on_demand` fixes it, and the panel still takes typing immediately. If Vicinae wins, this setting must be owned by our config (8.7), not its settings screen.
+  - Its first-run wizard asks for a global hotkey, which must not be one of our binds (Ctrl+Space, Super+Space): Hyprland's bind already runs the command, and a second grab would toggle twice. The hotkey and "paste to active window" come from its input server, which reads keyboards from `/dev/input`, including while locked; it can be turned off with `input_server.enabled = false`.
+- **Walker + Elephant:** plain search (Ctrl+Space) lists apps only; picking one starts a new instance, launched through uwsm (`app-Hyprland-…scope`). Windows can be added to plain search through Walker's provider settings. `walker --provider windows` (Super+Space) lists every window and raises the selected one correctly, including windows behind others; no extra setting was needed. Elephant logs harmless errors from its Arch package provider (`pacman` missing).
+
+**Open question raised by the tryout:** the stack layout (D5) assumed an exposé would be available, and none fits parked windows. A workspace-per-app model would let workspace-based overviews show every app. To be decided before the window model is final.
+
 ### D9: Config ownership: HM and chezmoi, one owner per path
 
 - **HM owns** files that use Nix values (store paths, the shared palette, generated units) or that need build-time checks.
@@ -191,11 +216,12 @@ Old workspace, special-workspace and pseudo-tiling binds are dropped.
 - **Screenshots:** candidates are the chosen shell's built-in tool, and `grim` + `slurp` + `satty`. Print opens region, window or screen selection; the result goes to the clipboard and `~/Pictures/Screenshots`. Tested on both monitors at scale 2.
 - **Clipboard history:** cliphist (HM service, Hyprland target), searched through the omnibox. If the chosen launcher has its own clipboard history, that replaces cliphist.
 - **Automount:** udiskie (HM service) with its unit bound to the Hyprland target, so it doesn't double-mount next to GNOME's automounting.
-- **Terminal:** foot, `programs.foot`, not nixGL-wrapped. It renders on the CPU, so it stays usable when GL is broken.
+- **Terminal:** foot, `programs.foot`. It renders on the CPU, so it stays usable when GL is broken.
 
 ### D11: Dev container at login
 
-- **Unit:** an HM systemd user unit, `Type=oneshot`, `RemainAfterExit=yes`, running `/usr/bin/distrobox enter nix -- true`.
+- **Unit:** an HM systemd user unit, `Type=oneshot`, `RemainAfterExit=yes`, `KillMode=process`, running `/usr/bin/distrobox enter nix -- true`.
+  - `KillMode=process` matters: when this unit starts the container, the container's conmon stays in the unit's cgroup. With the default `control-group`, stopping the unit (e.g. a switch restarting it after a change) kills the container and everything in it, including Zed. That happened once during task 8.2, when the unit's command briefly depended on the GPU driver path.
   - It is wanted by `default.target`, so it runs for both sessions.
   - It has a generous `TimeoutStartSec`, because the container's first start runs its init.
 - **Effect:** container-launched Emacs and Zed start immediately on first use. There is no Emacs daemon unit.
@@ -233,8 +259,8 @@ Old workspace, special-workspace and pseudo-tiling binds are dropped.
   → Guardrail criterion 2 is pass/fail. hyprlock is always the only locker; `loginctl lock-session` is the only lock path.
 - **Out-of-store Lua depends on the repo checkout path** and isn't validated at build time.
   → The path is the flake's fixed location. `hyprctl configerrors` is checked after each change. The Lua can move into the store once stable.
-- **nixGL doesn't reach child processes** (DMS spawning `qs`).
-  → Verify at tryout, and wrap the child explicitly if needed.
+- **Nix GPU drivers go stale.** After a nixpkgs update changes Mesa, `/run/opengl-driver` on the host still points at the old drivers until the setup script runs again.
+  → Activation warns with the exact `sudo` command. The container's link is updated by the switch itself.
 - **Parked windows are positioned off-screen.** Something that trusts a window's position (a screenshot tool listing windows, a shell's window previews) may show them oddly.
   → Checked during the tryout. Windows keep their size, so nothing re-lays out.
 - **Portal-written autostart entries are toggled by the apps themselves,** so they can reappear.

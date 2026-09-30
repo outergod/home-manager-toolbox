@@ -62,6 +62,13 @@ Super+Shift+Left and Super+Shift+Right SHALL move the focused window to the moni
 - **WHEN** the user presses Super+Shift+Right on a window on the left monitor
 - **THEN** the window appears in front on the right monitor and keeps focus
 
+### Requirement: Swapping the front windows of both monitors
+Super+Down SHALL swap the front windows of the two monitors, each arriving in front on the other monitor. Focus SHALL stay on the current monitor, on the window that came over. If one monitor has no tiled window, the other monitor's front window SHALL move over.
+
+#### Scenario: Swap front windows
+- **WHEN** A is in front on the left monitor and focused, B is in front on the right monitor, and the user presses Super+Down
+- **THEN** B is in front on the left monitor and focused, and A is in front on the right monitor
+
 ### Requirement: Focus follows mouse and raising does not move windows
 Keyboard focus SHALL follow the mouse pointer. Raising or focusing a window by keyboard or launcher SHALL NOT move it to another monitor; instead the pointer SHALL move to the raised window.
 

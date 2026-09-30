@@ -62,10 +62,10 @@ Note: run `home-manager switch` on the host only (host terminal or `distrobox-ho
 
 ## 8. Phase 3/4: Shell and launcher tryout
 
-- [ ] 8.1 Add `desktop.shell` and `desktop.launcher` options in `shell.nix` with shared guardrails (units on the Hyprland target, nixGL wrap), and bind Super+Space to the selected launcher; verify switching `none` ↔ a candidate installs/starts only that candidate
-- [ ] 8.2 DMS candidate: nixpkgs package, own unit, lock/polkit/idle disabled, lock action → `loginctl lock-session`, nixGL reaching `qs`; verify guardrails (`busctl --user` shows no second polkit agent, lock button shows hyprlock)
-- [ ] 8.3 Noctalia 5 candidate: HM module, lock/polkit/idle disabled, lock action → `loginctl lock-session`, nixGL wrap; verify guardrails
-- [ ] 8.4 Vicinae and Walker (+ Elephant) launcher candidates via HM modules, bound to the Hyprland target; verify each opens on Super+Space
+- [x] 8.1 Add `desktop.shell` and `desktop.launcher` options in `shell.nix` with shared guardrails (units on the Hyprland target, nixGL wrap), and bind Super+Space to the selected launcher; verify switching `none` ↔ a candidate installs/starts only that candidate
+- [x] 8.2 DMS candidate: nixpkgs package, own unit, lock/polkit/idle disabled, lock action → `loginctl lock-session`, `qs` on PATH with working GL; verify guardrails (`busctl --user` shows no second polkit agent, lock button shows hyprlock)
+- [x] 8.3 Noctalia 5 candidate: HM module, lock/polkit/idle disabled, lock action → `loginctl lock-session`, working GL; verify guardrails
+- [x] 8.4 Vicinae and Walker (+ Elephant) launcher candidates via HM modules, bound to the Hyprland target; verify each opens on Super+Space
 - [ ] 8.5 Evaluate each shell × launcher combination against the D8 checklist (0.56 compatibility, guardrails, caffeine vs hypridle, launcher spec, bar, notifications/DND, screenshots, config ownership, theming); record results in a "Tryout results" section in design.md
 - [ ] 8.6 Decide shell and launcher with the user, set the options, remove unused candidates; record the decision in design.md
 - [ ] 8.7 Decide ownership of the chosen shell's config (HM, chezmoi, or layered) and of theming; record in design.md D9/D13 and set up accordingly; verify `home-manager switch` and `chezmoi apply` don't conflict

@@ -10,12 +10,12 @@ The target workflow comes from GNOME: few windows, each normally filling its mon
 - Scope every Hyprland-only service to uwsm's `wayland-session@hyprland.desktop.target` (via `wayland.systemd.target` and links to image-provided units) so GNOME, the fallback session, is unaffected.
 - Use the image's hyprlock, hypridle and hyprpolkitagent; configure hypridle and hyprlock only. Lock on idle, on Super+L and before suspend, all through `loginctl lock-session`. Provide automatic (fullscreen) and manual ("caffeine") idle inhibition.
 - Replace workspaces with one fixed workspace per monitor (HDMI-A-1 left/primary, DP-2 right, both scale 2) and a custom Lua layout: each monitor is a stack where the focused window fills the screen; Super+Left/Right tiles it in halves with the previously used window, Super+Up returns to the full stack; Super+Shift+Left/Right moves a window to the other monitor. Dialogs always float and are never maximized. Bar stays visible except for true fullscreen.
-- Add a type-to-find omnibox on Super+Space: one entry per open window plus apps, with prefixes for other sources (calculator, clipboard history, files, power actions). Raising a window never moves it; focus and cursor go to it.
+- Add a type-to-find omnibox on Ctrl+Space (Cmd+Space on the Kyria in Mac mode, as on macOS): apps, with prefixes for other sources (calculator, clipboard history, files, power actions). Super+Space opens a window switcher with one entry per open window. Raising a window never moves it; focus and cursor go to it.
 - Keybindings: Super+Q close, Super+L lock, Super+Tab toggles US/Dvorak on all keyboards except the Kyria rev3 (hardware Dvorak, always `us`), Alt+Tab to previous window.
 - Run a structured tryout of DankMaterialShell and Noctalia 5 (bar, notifications, OSD, tray, volume/Bluetooth/network, wallpaper, screenshots) combined with the launcher candidates (shell built-in, Vicinae, Walker), against a fixed checklist, then commit to one combination. The shells' own lock screen, polkit agent and idle management stay disabled.
 - Decide per chosen shell how its configuration is owned: Home Manager, native settings UI versioned with chezmoi (`chezmoi re-add`), or layered (HM defaults plus runtime overrides). Decide who owns theming (shell or Nix).
 - Add a screenshot flow with a GNOME-like UI, clipboard history, and USB automount scoped to Hyprland.
-- Add foot as the Nix fallback terminal (no GPU/nixGL dependency).
+- Add foot as the Nix fallback terminal (no GPU dependency).
 - Start the `nix` distrobox container at login in the systemd user session (both sessions), so container-hosted Emacs and Zed work on first launch after boot. No Emacs daemon service.
 - Keep Bitwarden and Synology Drive as flatpaks, autostarted in Hyprland; keep Steam's existing autostart; remove Vesktop's autostart entry.
 - Keep only the container-launched Emacs and Zed desktop entries; remove the host-profile duplicates.
@@ -40,7 +40,7 @@ The target workflow comes from GNOME: few windows, each normally filling its mon
 
 - `home.nix` grows substantially; likely split into modules (e.g. `hyprland/`, `shell/`). `flake.nix` may gain an input if DankMaterialShell's HM module is used.
 - New generated files: `~/.config/hypr/*.lua`, `hypridle.conf`, `hyprlock.conf`, `~/.config/uwsm/env-hyprland`, shell/launcher configs, systemd user units and target wants under `~/.config/systemd/user/`.
-- New Nix packages (GPU apps nixGL-wrapped): chosen shell, launcher, foot, screenshot tooling, cliphist, udiskie, fonts/themes.
+- New Nix packages: chosen shell, launcher, foot, screenshot tooling, cliphist, udiskie, fonts/themes. Nix GPU apps get nixpkgs' Mesa through `/run/opengl-driver` (HM `targets.genericLinux.gpu`, replacing nixGL; one-time `sudo` setup on the host).
 - chezmoi (`outergod/dotfiles`) is the second config tool, for writable, UI-edited files. Every config path has exactly one owner, HM or chezmoi, never both.
 - Cleanup outside HM: Vesktop's entry in `~/.config/autostart`, and duplicate desktop entries. `~/.local/share/applications/emacs.desktop` and `emacsclient.desktop` are chezmoi-managed; changes to them go through the dotfiles repo.
 - No Nix-built password-checking binaries; nothing from Nix replaces image-provided hyprland, hyprlock, hypridle, xdph, uwsm or hyprpolkitagent.
