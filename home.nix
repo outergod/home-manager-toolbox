@@ -1,9 +1,9 @@
-{ config, pkgs, emacs-overlay, nixgl, ... }:
+{ config, pkgs, emacs-overlay, ... }:
 
 {
   imports = [ ./desktop ];
 
-  nixpkgs.overlays = [ emacs-overlay.overlays.default nixgl.overlay ];
+  nixpkgs.overlays = [ emacs-overlay.overlays.default ];
   nixpkgs.config.allowUnfree = true;
 
   # Home Manager needs a bit of information about you and the paths it should
@@ -38,7 +38,6 @@
 
     libheif imagemagick
 
-    nixgl
     uv
 
     # # Adds the 'hello' command to your environment. It prints a friendly
@@ -94,14 +93,13 @@
     # EDITOR = "emacs";
   };
 
-  # The nix store's glibc is older than the container's, so nix-built GPU
-  # programs cannot load the system's Mesa drivers. Anything passed through
-  # config.lib.nixGL.wrap runs under nixGL with nixpkgs' Mesa instead.
-  targets.genericLinux.nixGL = {
-    packages = nixgl.packages;
-    defaultWrapper = "mesa";
-    vulkan.enable = true;
-  };
+  # Nix-built GPU programs can't load the system's Mesa, so nixpkgs' Mesa is
+  # linked to /run/opengl-driver, where they look for drivers. Unlike nixGL,
+  # this sets no LD_LIBRARY_PATH that would leak into host programs they
+  # start. Activation warns when the link is missing or outdated; then run
+  # the printed `sudo non-nixos-gpu-setup` on the host. The nix container
+  # gets its link from container.nix.
+  targets.genericLinux.gpu.enable = true;
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;

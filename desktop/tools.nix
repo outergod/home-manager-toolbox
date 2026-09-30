@@ -34,8 +34,8 @@ let
   '';
 in
 {
-  # Fallback terminal. It renders on the CPU, so it is deliberately not
-  # nixGL-wrapped and keeps working when GL is broken.
+  # Fallback terminal. It renders on the CPU, so it keeps working when GL is
+  # broken.
   programs.foot.enable = true;
 
   home.packages = [ xdg-open ];
