@@ -97,8 +97,11 @@ local function recalculate(ctx)
 end
 
 local function layout_msg(ctx, msg)
+    -- An empty workspace, e.g. the active one after its last window closed
+    -- while focus moved to the other monitor. Nothing to do; rejecting the
+    -- message would show an error.
     local ws = workspace_of(ctx)
-    if not ws then return false end
+    if not ws then return true end
 
     -- Sent on every focus change, so the front window is shown.
     if msg == "focus" then
