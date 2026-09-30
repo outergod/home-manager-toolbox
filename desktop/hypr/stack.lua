@@ -161,11 +161,13 @@ hl.workspace_rule({ workspace = "1", monitor = monitors.left, persistent = true,
 hl.workspace_rule({ workspace = "2", monitor = monitors.right, persistent = true, default = true })
 
 -- Show the newly focused window. The message goes to the layout of the
--- focused window's workspace. During a reload, workspaces briefly run the
--- default layout, which rejects the message with an error.
+-- active workspace, which is the focused window's. During a reload,
+-- workspaces briefly run the default layout, which rejects the message
+-- with an error. The active workspace is checked rather than the window's:
+-- a window that has just opened has no workspace yet at this point.
 hl.on("window.active", function(w)
-    if w and not w.floating and w.workspace
-        and w.workspace.tiled_layout == "lua:stack" then
+    local ws = hl.get_active_workspace()
+    if w and not w.floating and ws and ws.tiled_layout == "lua:stack" then
         hl.dispatch(hl.dsp.layout("focus"))
     end
 end)
