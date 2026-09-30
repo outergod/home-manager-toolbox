@@ -75,4 +75,27 @@ in
     };
     Install.WantedBy = [ "default.target" ];
   };
+
+  # Gives the container the host's cursor theme (theme.nix), which its image
+  # lacks. GTK apps there (Emacs) have the compositor draw standard cursors,
+  # but look up legacy ones such as Emacs's left_ptr in the theme, and
+  # without it get libwayland-cursor's tiny built-in cursors. Like the GPU
+  # link, it only execs into the running container.
+  systemd.user.services.distrobox-nix-cursors =
+    let
+      theme = config.desktop.theme.cursor.name;
+    in
+    {
+      Unit = {
+        Description = "Link the host's cursor theme into the nix distrobox container";
+        Requires = [ "distrobox-nix.service" ];
+        After = [ "distrobox-nix.service" ];
+      };
+      Service = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = "/usr/bin/podman exec --user root nix ln -sfn /run/host/usr/share/icons/${theme} /usr/share/icons/${theme}";
+      };
+      Install.WantedBy = [ "default.target" ];
+    };
 }
