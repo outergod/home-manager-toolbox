@@ -28,6 +28,44 @@ local function move_to_monitor(side)
     end
 end
 
+-- The front window of a workspace: the most recently focused tiled one.
+local function front_window(workspace)
+    local front
+    for _, w in ipairs(hl.get_workspace_windows(workspace.id)) do
+        if not w.floating and w.focus_history_id >= 0
+            and (not front or w.focus_history_id < front.focus_history_id) then
+            front = w
+        end
+    end
+    return front
+end
+
+-- Swaps the front windows of the two monitors. Focus stays on the current
+-- monitor, with the window that came over from the other one. Moving a
+-- window focuses it, which also brings it to the front of its new stack.
+local function swap_monitors()
+    local here = hl.get_active_monitor()
+    local there
+    for _, m in ipairs(hl.get_monitors()) do
+        if m.name ~= here.name then there = m end
+    end
+    if not (there and here.active_workspace and there.active_workspace) then return end
+
+    local mine = front_window(here.active_workspace)
+    local theirs = front_window(there.active_workspace)
+    if mine then
+        hl.dispatch(hl.dsp.window.move({
+            workspace = there.active_workspace.id, window = "address:" .. mine.address,
+        }))
+    end
+    if theirs then
+        hl.dispatch(hl.dsp.window.move({
+            workspace = here.active_workspace.id, window = "address:" .. theirs.address,
+        }))
+        hl.dispatch(hl.dsp.focus({ window = "address:" .. theirs.address }))
+    end
+end
+
 hl.bind("SUPER + Q", hl.dsp.window.close())
 
 -- Every lock goes through logind, which has hypridle run hyprlock.
@@ -52,6 +90,7 @@ hl.bind("SUPER + RIGHT", hl.dsp.layout("right"))
 hl.bind("SUPER + UP", hl.dsp.layout("stack"))
 hl.bind("SUPER + SHIFT + LEFT", move_to_monitor("left"))
 hl.bind("SUPER + SHIFT + RIGHT", move_to_monitor("right"))
+hl.bind("SUPER + DOWN", swap_monitors)
 hl.bind("SUPER + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 hl.bind("ALT + TAB", hl.dsp.focus({ last = true }))
 
