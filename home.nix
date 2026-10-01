@@ -23,7 +23,7 @@
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = with pkgs; [
-    starship chezmoi direnv fzf
+    zsh starship chezmoi direnv fzf
     eza procs bottom ripgrep fd
     netcat socat dig xh
     podman
