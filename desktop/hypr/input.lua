@@ -4,6 +4,12 @@ hl.config({
         -- launcher warps the pointer to it instead.
         follow_mouse = 1,
 
+        -- Closing the focused window focuses the one focused before it,
+        -- which the stack then shows. The default asks the layout, and Lua
+        -- layouts answer with the most recently opened window. 2 is "mru";
+        -- the Lua config doesn't take the name.
+        focus_on_close = 2,
+
         -- US by default, Dvorak on Super+Tab (binds.lua).
         kb_layout  = "us,us",
         kb_variant = ",dvorak",

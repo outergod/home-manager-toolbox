@@ -32,23 +32,28 @@ end
 -- history ID, which put it behind the old front window.
 local focus_order, focus_count = {}, 0
 
--- The most recently focused window. Windows focused before a reload have no
--- count; for them, Hyprland's focus history decides. One that never had
--- focus yet (history ID -1) just opened, and goes in front too.
+-- Whether window a was focused at least as recently as b. Windows focused
+-- before a reload have no count; for them, Hyprland's focus history decides.
+-- One that never had focus yet (history ID -1) just opened, and counts as
+-- the most recent too.
+local function more_recent(a, b)
+    local ca, cb = focus_order[a.stable_id] or 0, focus_order[b.stable_id] or 0
+    if ca ~= cb then return ca > cb end
+    local ra = a.focus_history_id < 0 and -1 or a.focus_history_id
+    local rb = b.focus_history_id < 0 and -1 or b.focus_history_id
+    return ra <= rb
+end
+
+-- The most recently focused window.
 local function front_of(ctx)
     local front
     for _, t in ipairs(ctx.targets) do
         local w = t.window
-        if w then
-            local count = focus_order[w.stable_id] or 0
-            local rank = w.focus_history_id < 0 and -1 or w.focus_history_id
-            if not front or count > front.count
-                or (count == front.count and rank <= front.rank) then
-                front = { id = w.stable_id, count = count, rank = rank }
-            end
+        if w and (not front or more_recent(w, front)) then
+            front = w
         end
     end
-    return front and front.id
+    return front and front.stable_id
 end
 
 local function halves(area)
@@ -164,10 +169,18 @@ hl.config({
 -- Windows would otherwise slide in from where they are parked.
 hl.animation({ leaf = "windowsMove", enabled = false })
 
--- Always present, so no other workspace is ever needed. There are no
--- workspace binds.
-hl.workspace_rule({ workspace = "1", monitor = monitors.left, persistent = true, default = true })
-hl.workspace_rule({ workspace = "2", monitor = monitors.right, persistent = true, default = true })
+-- Each BenQ starts on its own workspace, so one that connects next to the
+-- other starts with an empty stack. Not persistent: a workspace kept for a
+-- monitor that isn't connected would sit on another one as a second stack.
+-- There are no workspace binds.
+hl.workspace_rule({ workspace = "1", monitor = monitors.left, default = true })
+hl.workspace_rule({ workspace = "2", monitor = monitors.right, default = true })
+
+-- The same pairs by monitor description, as reconcile() sees them.
+local own_workspace = {
+    [(monitors.left:gsub("^desc:", ""))] = 1,
+    [(monitors.right:gsub("^desc:", ""))] = 2,
+}
 
 -- Show the newly focused window. The message goes to the layout of the
 -- active workspace, which is the focused window's. During a reload,
@@ -175,12 +188,126 @@ hl.workspace_rule({ workspace = "2", monitor = monitors.right, persistent = true
 -- with an error. The active workspace is checked rather than the window's:
 -- a window that has just opened has no workspace yet at this point.
 hl.on("window.active", function(w)
-    if w and not w.floating then
+    -- Focus moving to no window, e.g. when the last monitor disconnects,
+    -- still comes with a window object, just with every field nil. So
+    -- `if w` doesn't tell; the stable ID does.
+    if w.stable_id == nil then return end
+    if not w.floating then
         focus_count = focus_count + 1
         focus_order[w.stable_id] = focus_count
     end
     local ws = hl.get_active_workspace()
-    if w and not w.floating and ws and ws.tiled_layout == "lua:stack" then
+    if not w.floating and ws and ws.tiled_layout == "lua:stack" then
         hl.dispatch(hl.dsp.layout("focus"))
     end
 end)
+
+-- Brings whatever Hyprland made of a monitor change back to one stack per
+-- connected monitor: windows on any other workspace join the stack of the
+-- monitor that workspace is on, and each monitor shows its most recently
+-- used window.
+local function reconcile()
+    -- FALLBACK is Hyprland's stand-in while no monitor is connected. Then
+    -- there is nothing to show, and the run after the next monitor.added
+    -- does the work.
+    local real, home = {}, nil
+    for _, m in ipairs(hl.get_monitors()) do
+        if m.name ~= "FALLBACK" and not m.is_mirror then
+            real[m.name] = m
+            if m.focused or not home then home = m end
+        end
+    end
+    if not home then return end
+
+    -- Windows by monitor, and each monitor's most recently used one. A
+    -- workspace on no connected monitor goes to the focused one.
+    local windows, recent, latest = {}, {}, nil
+    for _, w in ipairs(hl.get_windows()) do
+        local ws = w.workspace
+        if ws and not ws.special then
+            local m = ws.monitor and real[ws.monitor.name] or home
+            windows[m.name] = windows[m.name] or {}
+            table.insert(windows[m.name], w)
+            if not recent[m.name] or more_recent(w, recent[m.name]) then
+                recent[m.name] = w
+            end
+            if not latest or more_recent(w, latest) then latest = w end
+        end
+    end
+
+    -- The stack lives on the monitor's own workspace if it's there.
+    -- Otherwise on the workspace of the most recently used window, not the
+    -- active one: after the only monitor returns, that is the empty one
+    -- Hyprland made for FALLBACK.
+    local placed = {}
+    for _, ws in ipairs(hl.get_workspaces()) do
+        if ws.monitor then placed[ws.id] = ws.monitor.name end
+    end
+
+    local target, moves = {}, {}
+    for name, m in pairs(real) do
+        local own = own_workspace[m.description]
+        local used = recent[name] and recent[name].workspace.id
+        target[name] = own and placed[own] == name and own
+            or used and placed[used] == name and used
+            or m.active_workspace and m.active_workspace.id
+        for _, w in ipairs(windows[name] or {}) do
+            if w.workspace.id ~= target[name] then
+                table.insert(moves, { w = w, to = target[name] })
+            end
+        end
+    end
+
+    -- Nothing to do, e.g. on a reload. Focusing would warp the pointer.
+    local settled = #moves == 0 and (not latest or hl.get_active_window())
+    for name, m in pairs(real) do
+        if recent[name] and not (m.active_workspace and m.active_workspace.id == target[name]) then
+            settled = false
+        end
+    end
+    if settled then return end
+
+    -- Focusing below counts as use; the order from before stays.
+    local order, count = {}, focus_count
+    for id, n in pairs(focus_order) do order[id] = n end
+
+    for _, move in ipairs(moves) do
+        hl.dispatch(hl.dsp.window.move({
+            workspace = move.to, window = "address:" .. move.w.address, follow = false,
+        }))
+    end
+
+    -- Focusing a window shows its workspace on its monitor. The most
+    -- recently used window overall goes last, so it ends up focused.
+    for _, w in pairs(recent) do
+        if w ~= latest then
+            hl.dispatch(hl.dsp.focus({ window = "address:" .. w.address }))
+        end
+    end
+    if latest then
+        hl.dispatch(hl.dsp.focus({ window = "address:" .. latest.address }))
+    end
+
+    focus_order, focus_count = order, count
+end
+
+-- Hyprland reshuffles monitors and workspaces in deferred steps after the
+-- event, and switching the input produces several events in a row. One
+-- timer, restarted by each, runs reconcile() once things have settled. The
+-- events' monitor argument may already be empty, so it isn't read.
+local RECONCILE_DELAY_MS = 500
+local pending
+
+local function schedule_reconcile()
+    if pending and pending:is_enabled() then
+        pending:set_timeout(RECONCILE_DELAY_MS)
+    else
+        pending = hl.timer(reconcile, { timeout = RECONCILE_DELAY_MS, type = "oneshot" })
+    end
+end
+
+hl.on("monitor.added", schedule_reconcile)
+hl.on("monitor.removed", schedule_reconcile)
+
+-- Also repairs a session left broken before this config was loaded.
+schedule_reconcile()
