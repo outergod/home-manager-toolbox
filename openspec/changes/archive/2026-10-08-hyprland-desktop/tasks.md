@@ -89,6 +89,6 @@ Note: run `home-manager switch` on the host only (host terminal or `distrobox-ho
 
 ## 11. Wrap-up
 
-- [ ] 11.1 Daily-use check with the user; collect adjustments and apply them
-- [ ] 11.2 Final verification: `hyprctl configerrors` empty, `openspec validate hyprland-desktop --strict` passes, design.md reflects the final decisions
-- [ ] 11.3 Open the gamescope-nested Steam follow-up change (gs.sh, lock over nested gamescope)
+- [x] 11.1 Daily-use check with the user; collect adjustments and apply them (adjustments found: focus after close, monitor hotplug and the single-monitor setup; moved to the follow-up change monitor-resilience)
+- [x] 11.2 Final verification: `hyprctl configerrors` empty, `openspec validate hyprland-desktop --strict` passes, design.md reflects the final decisions
+- [x] ~~11.3 Open the gamescope-nested Steam follow-up change (gs.sh, lock over nested gamescope)~~ (cancelled by decision)
