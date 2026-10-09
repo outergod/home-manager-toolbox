@@ -52,3 +52,15 @@ dialog_rule("float-modal", { modal = true })
 dialog_rule("float-prompts", {
     class = "^(xdg-desktop-portal-.*|org\\.freedesktop\\.impl\\.portal\\..*|hyprpolkitagent|gcr-prompter|pinentry-.*)$",
 })
+
+-- Blender's file browser is a full browser, not a prompt: it goes in
+-- front of Blender like any window, and closing it brings Blender back.
+-- Floating, it opens at whatever size Blender last saved, which on
+-- Wayland shrinks to its 320x240 minimum. It opens as "File Browser" and
+-- is renamed right after; "Blender" is the class under XWayland.
+hl.window_rule({
+    name  = "blender-file-view-tile",
+    match = { class = "^[Bb]lender$", title = "^(File Browser|Blender File View)$" },
+
+    tile = true,
+})
