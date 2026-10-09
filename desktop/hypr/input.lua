@@ -23,10 +23,23 @@ hl.config({
     },
 })
 
--- The Kyria produces Dvorak in its firmware, so it stays on plain US and
--- the layout toggle can't reach it.
-hl.device({
-    name       = "splitkb.com-kyria-rev3",
-    kb_layout  = "us",
-    kb_variant = "",
-})
+-- Keyboards that stay on plain US, out of the layout toggle's reach.
+local us_only = {
+    -- Their firmware decides the layout: the Kyria always produces
+    -- Dvorak, the Preonic switches itself. The Preonic's letter keys
+    -- come from drop-preonic. drop-preonic-keyboard is pinned too, in
+    -- case they ever come from it.
+    "splitkb.com-kyria-rev3",
+    "drop-preonic",
+    "drop-preonic-keyboard",
+    -- Vicinae pastes and expands snippets through this uinput device, with
+    -- keycodes that assume US.
+    "vicinae-snippet-virtual-keyboard",
+}
+for _, name in ipairs(us_only) do
+    hl.device({
+        name       = name,
+        kb_layout  = "us",
+        kb_variant = "",
+    })
+end

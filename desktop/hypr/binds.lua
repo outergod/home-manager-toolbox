@@ -101,8 +101,16 @@ hl.bind("SUPER + DOWN", swap_monitors)
 hl.bind("SUPER + F", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 hl.bind("ALT + TAB", hl.dsp.focus({ last = true }))
 
--- Toggle US / Dvorak. There is no Lua dispatcher for it.
-hl.bind("SUPER + TAB", hl.dsp.exec_cmd("/usr/bin/hyprctl switchxkblayout all next"))
+-- Toggle US / Dvorak. Each press sets the same layout on every keyboard
+-- rather than stepping each one, so keyboards that drifted apart come back
+-- together. There is no Lua dispatcher for it. The pinned keyboards
+-- (input.lua) have one layout: hyprctl reports index 1 as out of range for
+-- them and switches the rest anyway. The flag resets to US on a reload.
+local dvorak = false
+hl.bind("SUPER + TAB", function()
+    dvorak = not dvorak
+    hl.dispatch(hl.dsp.exec_cmd("/usr/bin/hyprctl switchxkblayout all " .. (dvorak and 1 or 0)))
+end)
 
 -- Floating windows.
 hl.bind("SUPER + mouse:272", hl.dsp.window.drag(), { mouse = true })
