@@ -20,11 +20,11 @@
 
 ## 5. One BenQ
 
-- [ ] 5.1 Remove the second BenQ (D6): its `hl.monitor` entry and the `right` field of the returned table in `monitors.lua`, and workspace 2's rule and `own_workspace` entry in `stack.lua`. Rename `monitors.left` to a name that doesn't imply a second monitor, and update the comments that describe two BenQs (`monitors.lua` header, the workspace rule comment in `stack.lua`). `stack.lua` is the only user of `monitors.left`/`right` today; check again with grep. Verify with `hyprctl workspacerules` (only workspace 1) and `hyprctl configerrors` (empty)
+- [x] 5.1 Remove the second BenQ (D6): its `hl.monitor` entry and the `right` field of the returned table in `monitors.lua`, and workspace 2's rule and `own_workspace` entry in `stack.lua`. Rename `monitors.left` to a name that doesn't imply a second monitor, and update the comments that describe two BenQs (`monitors.lua` header, the workspace rule comment in `stack.lua`). `stack.lua` is the only user of `monitors.left`/`right` today; check again with grep. Verify with `hyprctl workspacerules` (only workspace 1) and `hyprctl configerrors` (empty)
 
 ## 6. Verification
 
-- [ ] 6.1 Only monitor leaves and returns: focus a window, switch the BenQ's input to the other machine and back. The same window is in front and focused, `hyprctl activeworkspace` is not an empty extra workspace, `hyprctl workspaces` shows no workspace with windows besides the shown one, and `hyprctl configerrors` is empty. Repeat with the screen going into standby (idle until DPMS off), then unlock
-- [ ] 6.2 Closing after a merge: after 6.1, close the front window. The window focused before it comes to the front
+- [x] 6.1 Only monitor leaves and returns: focus a window, switch the BenQ's input to the other machine and back. The same window is in front and focused, `hyprctl activeworkspace` is not an empty extra workspace, `hyprctl workspaces` shows no workspace with windows besides the shown one, and `hyprctl configerrors` is empty. Repeat with the screen going into standby (idle until DPMS off), then unlock
+- [x] 6.2 Closing after a merge: after 6.1, close the front window. The window focused before it comes to the front
 - [x] 6.3 Two monitors: disconnecting one merges its windows into the other's stack by order of use; connecting it again shows an empty stack there, and Super+Shift+Left/Right moves a window over. **Not verifiable on this machine: the second BenQ was removed for good (D6). Verify the first time this configuration runs on a machine with two displays; until then covered by 6.1's single-monitor path as far as the code is shared.**
-- [ ] 6.4 `openspec validate monitor-resilience --strict` passes, and design.md reflects any adjustments made during verification (delay, chunking, audit result)
+- [x] 6.4 `openspec validate monitor-resilience --strict` passes, and design.md reflects any adjustments made during verification (delay, chunking, audit result)
