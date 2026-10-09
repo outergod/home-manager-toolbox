@@ -1,24 +1,17 @@
--- Both BenQ PD3200U side by side, matched by serial so a cable change
--- doesn't swap them. Positions are logical pixels (3840 / 2).
+-- The BenQ PD3200U, matched by model and serial rather than connector, so
+-- a cable change keeps its settings.
 
-local left  = "desc:BNQ BenQ PD3200U M9H01833019"
-local right = "desc:BNQ BenQ PD3200U V5H01247019"
+local benq = "desc:BNQ BenQ PD3200U M9H01833019"
 
 hl.monitor({
-    output   = left,
+    output   = benq,
     mode     = "preferred",
     position = "0x0",
     scale    = 2,
 })
 
-hl.monitor({
-    output   = right,
-    mode     = "preferred",
-    position = "1920x0",
-    scale    = 2,
-})
-
--- Anything else, e.g. a temporarily attached display.
+-- Any other display, e.g. a laptop panel or an external screen on another
+-- machine using this configuration.
 hl.monitor({
     output   = "",
     mode     = "preferred",
@@ -26,4 +19,4 @@ hl.monitor({
     scale    = "auto",
 })
 
-return { left = left, right = right }
+return { benq = benq }

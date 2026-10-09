@@ -169,17 +169,16 @@ hl.config({
 -- Windows would otherwise slide in from where they are parked.
 hl.animation({ leaf = "windowsMove", enabled = false })
 
--- Each BenQ starts on its own workspace, so one that connects next to the
--- other starts with an empty stack. Not persistent: a workspace kept for a
--- monitor that isn't connected would sit on another one as a second stack.
--- There are no workspace binds.
-hl.workspace_rule({ workspace = "1", monitor = monitors.left, default = true })
-hl.workspace_rule({ workspace = "2", monitor = monitors.right, default = true })
+-- The BenQ starts on its own workspace, so it starts with an empty stack
+-- when it connects next to another display. Any other display gets a new,
+-- empty workspace from Hyprland anyway. Not persistent: a workspace kept
+-- for a monitor that isn't connected would sit on another one as a second
+-- stack. There are no workspace binds.
+hl.workspace_rule({ workspace = "1", monitor = monitors.benq, default = true })
 
--- The same pairs by monitor description, as reconcile() sees them.
+-- The same pair by monitor description, as reconcile() sees it.
 local own_workspace = {
-    [(monitors.left:gsub("^desc:", ""))] = 1,
-    [(monitors.right:gsub("^desc:", ""))] = 2,
+    [(monitors.benq:gsub("^desc:", ""))] = 1,
 }
 
 -- Show the newly focused window. The message goes to the layout of the
